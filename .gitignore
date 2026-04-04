@@ -1,0 +1,24 @@
+# --- Python ---
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+.venv/
+venv/
+env/
+
+# --- Jupyter ---
+.ipynb_checkpoints/
+
+# --- OS ---
+.DS_Store
+Thumbs.db
+
+# --- Large ML / training artifacts ---
+# Lightning checkpoints (RF-DETR training); often 500MB+ each
+*.ckpt
+
+# RF-DETR: Roboflow-downloaded base weights + anything under training runs
+v2_rf_detr/rf-detr*.pt
+v2_rf_detr/runs/*
+!v2_rf_detr/runs/.gitkeep

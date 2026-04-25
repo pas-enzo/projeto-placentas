@@ -1,0 +1,9 @@
+{
+  "tag": "fp16",
+  "half": true,
+  "conf": 0.46,
+  "n_images": 27,
+  "elapsed_sec": 2.482429027557373,
+  "images_per_sec": 10.8764438782635,
+  "peak_gpu_mem_mb": 515.07568359375
+}

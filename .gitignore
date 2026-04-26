@@ -22,3 +22,8 @@ Thumbs.db
 v2_rf_detr/rf-detr*.pt
 v2_rf_detr/runs/*
 !v2_rf_detr/runs/.gitkeep
+
+# RF-DETR optimization workspace artifacts (keep notebook/code, skip heavy outputs)
+v2_rfdetr_opt_v1/artifacts/runs/*
+v2_rfdetr_opt_v1/artifacts/iou_viz/*
+v2_rfdetr_opt_v1/notebooks/rf-detr-seg-small.pt

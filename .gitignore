@@ -25,5 +25,4 @@ v2_rf_detr/runs/*
 
 # RF-DETR optimization workspace artifacts (keep notebook/code, skip heavy outputs)
 v2_rfdetr_opt_v1/artifacts/runs/*
-v2_rfdetr_opt_v1/artifacts/iou_viz/*
 v2_rfdetr_opt_v1/notebooks/rf-detr-seg-small.pt

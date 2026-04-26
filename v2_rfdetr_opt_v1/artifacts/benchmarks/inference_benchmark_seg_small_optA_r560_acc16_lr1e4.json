@@ -1,0 +1,12 @@
+{
+  "run_name": "seg_small_optA_r560_acc16_lr1e4",
+  "checkpoint": "D:\\projeto_placentas_clayton\\dev\\projeto-placentas\\v2_rfdetr_opt_v1\\artifacts\\runs\\seg_small_optA_r560_acc16_lr1e4\\checkpoint_best_total.pth",
+  "conf": 0.46,
+  "n_images": 27,
+  "repeats": 3,
+  "warmup": 1,
+  "elapsed_sec_mean": 1.7889251708984375,
+  "elapsed_sec_std": 0.0007672898366979154,
+  "images_per_sec": 15.092861590426393,
+  "peak_gpu_mem_mb": 993.7421875
+}

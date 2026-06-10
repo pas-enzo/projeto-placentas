@@ -1,0 +1,18 @@
+{
+  "model_family": "yolo11s_seg",
+  "variant": "placentas_v11_aug_v2",
+  "best_conf": 0.46,
+  "checkpoint": "D:\\projeto_placentas_clayton\\dev\\projeto-placentas\\v2\\runs\\segment\\placentas_v11_aug_v2\\weights\\best.pt",
+  "f1": 0.888755980861244,
+  "mean_iou": 0.8809247727434629,
+  "area_rel_error": 0.0061764046046806,
+  "images_per_sec": 15.392880652859413,
+  "weighted_score": 0.9074201413327248,
+  "weights": {
+    "f1": 0.5,
+    "mean_iou": 0.3,
+    "area_consistency": 0.2,
+    "speed": 0.0
+  },
+  "yolo_model_leaderboard_csv": "D:\\projeto_placentas_clayton\\dev\\projeto-placentas\\v2_yolo11s_opt_v1\\artifacts\\benchmarks\\yolo_model_leaderboard.csv"
+}

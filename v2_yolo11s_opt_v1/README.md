@@ -20,6 +20,10 @@ Open and run:
 
 `v2_yolo11s_opt_v1/notebooks/yolo11s_opt_v1.ipynb`
 
+For the champion-model showcase (tables, inference benchmark, figures, overlap PNGs):
+
+`v2_yolo11s_opt_v1/notebooks/yolo_champion_showcase.ipynb`
+
 It performs:
 
 1. confidence sweep on validation set (post-training),

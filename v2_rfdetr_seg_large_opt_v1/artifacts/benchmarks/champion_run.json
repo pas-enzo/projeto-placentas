@@ -1,0 +1,7 @@
+{
+  "model": "RFDETRSegLarge",
+  "run_name": "seg_large_r672_auto",
+  "best_conf": 0.44,
+  "checkpoint": "C:\\Users\\edual\\projeto-placentas\\codespace\\v2_rfdetr_seg_large_opt_v1\\artifacts\\runs\\seg_large_r672_auto\\checkpoint_best_total.pth",
+  "score": 0.9116264146074771
+}

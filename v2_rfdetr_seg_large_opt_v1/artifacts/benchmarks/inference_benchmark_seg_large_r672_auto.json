@@ -1,0 +1,13 @@
+{
+  "model": "RFDETRSegLarge",
+  "run_name": "seg_large_r672_auto",
+  "checkpoint": "C:\\Users\\edual\\projeto-placentas\\codespace\\v2_rfdetr_seg_large_opt_v1\\artifacts\\runs\\seg_large_r672_auto\\checkpoint_best_total.pth",
+  "conf": 0.44,
+  "n_images": 27,
+  "repeats": 3,
+  "warmup": 1,
+  "elapsed_sec_mean": 1.0780351161956787,
+  "elapsed_sec_std": 0.03752946308419809,
+  "images_per_sec": 25.04556632188512,
+  "peak_gpu_mem_mb": 840.4873046875
+}

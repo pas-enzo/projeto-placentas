@@ -1,0 +1,13 @@
+{
+  "model": "RFDETRSegLarge",
+  "champion_run": "seg_large_r672_auto",
+  "champion_conf": 0.44,
+  "champion_checkpoint": "C:\\Users\\edual\\projeto-placentas\\codespace\\v2_rfdetr_seg_large_opt_v1\\artifacts\\runs\\seg_large_r672_auto\\checkpoint_best_total.pth",
+  "dataset_dir": "C:\\Users\\edual\\projeto-placentas\\datasets\\dataset_v2_coco_rf_detr",
+  "run_ranking_csv": "C:\\Users\\edual\\projeto-placentas\\codespace\\v2_rfdetr_seg_large_opt_v1\\artifacts\\benchmarks\\run_ranking.csv",
+  "dataset_validation_json": "C:\\Users\\edual\\projeto-placentas\\codespace\\v2_rfdetr_seg_large_opt_v1\\artifacts\\preprocessing\\dataset_validation.json",
+  "instance_report_csv": "C:\\Users\\edual\\projeto-placentas\\codespace\\v2_rfdetr_seg_large_opt_v1\\artifacts\\reports\\seg_large_r672_auto\\placenta_instance_report_rfdetr.csv",
+  "totals_report_csv": "C:\\Users\\edual\\projeto-placentas\\codespace\\v2_rfdetr_seg_large_opt_v1\\artifacts\\reports\\seg_large_r672_auto\\placenta_totals_report_rfdetr.csv",
+  "iou_viz_dir": "C:\\Users\\edual\\projeto-placentas\\codespace\\v2_rfdetr_seg_large_opt_v1\\artifacts\\iou_viz\\seg_large_r672_auto",
+  "inference_benchmark_json": "C:\\Users\\edual\\projeto-placentas\\codespace\\v2_rfdetr_seg_large_opt_v1\\artifacts\\benchmarks\\inference_benchmark_seg_large_r672_auto.json"
+}

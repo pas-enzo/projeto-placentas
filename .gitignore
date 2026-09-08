@@ -33,3 +33,8 @@ yolo11n-seg.pt
 
 # Generic RF-DETR-style checkpoints (YOLO weights use .pt and are handled separately)
 *.pth
+
+# Capillary pipeline (pipeline 2) training runs / heavy outputs
+v3_capilar_yolo11s/runs/
+v3_capilar_yolo11s/artifacts/**
+!v3_capilar_yolo11s/artifacts/.gitkeep

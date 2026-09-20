@@ -1,0 +1,15 @@
+{
+  "model": "yolo11s-seg",
+  "run_name": "capilar_yolo26s_tiled_v1",
+  "checkpoint": "D:\\projeto_placentas_clayton\\dev\\projeto-placentas\\v3_capilar_yolo11s\\runs\\capilar_yolo26s_tiled_v1\\weights\\best.pt",
+  "best_conf": 0.33,
+  "f1": 0.7316242380781642,
+  "mean_iou": 0.7947039100268776,
+  "area_rel_error": 0.01877712409154776,
+  "weighted_score": 0.8004678672288358,
+  "area_factor_um2_per_px2": 0.011524823461313616,
+  "classes": [
+    0
+  ],
+  "notes": "Tile-level metrics on Capilar only; field-level merge TBD"
+}

@@ -1,0 +1,28 @@
+{
+  "microcotyledon_overlays": {
+    "dir": "v2_rfdetr_seg_large_opt_v1/artifacts/iou_viz/seg_large_r672_auto",
+    "recommended": [
+      "v2_rfdetr_seg_large_opt_v1/artifacts/iou_viz/seg_large_r672_auto/iou_viz_ROSILHA-M-D_006_jpg.rf.de71085683e9c7eb460be0f184fb31ac.png",
+      "v2_rfdetr_seg_large_opt_v1/artifacts/iou_viz/seg_large_r672_auto/iou_viz_ROSILHA-M-G_001_jpg.rf.3dab74a9f6c203f6aca8afc07a353bd2.png",
+      "v2_rfdetr_seg_large_opt_v1/artifacts/iou_viz/seg_large_r672_auto/iou_viz_ZAZA-G_010_jpg.rf.cd14098445a0a54c10014aaa7d8f975c.png"
+    ],
+    "n_available": 27,
+    "note": "Existing GT vs pred IoU overlays from RF-DETR champion eval; not yet reframed for paper."
+  },
+  "capillary_overlays": {
+    "dir": "v3_capilar_yolo11s/artifacts_v4/iou_viz",
+    "recommended": [
+      "v3_capilar_yolo11s/artifacts_v4/iou_viz/iou_viz_ROSILHA-M-D_006_jpg.rf.4bf38cf5314617b13c7c11445fe40b04_r0c2.png",
+      "v3_capilar_yolo11s/artifacts_v4/iou_viz/iou_viz_TP-D_009_jpg.rf.e8cdb11635df3be6c85d743284d8ecfb_r1c2.png",
+      "v3_capilar_yolo11s/artifacts_v4/iou_viz/iou_viz_ZAINA-679-D_007_jpg.rf.34de0be2ff800849eeb730bc4890f94f_r2c1.png"
+    ],
+    "n_available": 12,
+    "note": "Tile-level overlays only (Methods: no FOV merge)."
+  },
+  "optional_plots": {
+    "area_scatter_fov": "figs/results/figR_area_scatter_fov.jpg",
+    "bland_altman_area_fov": "figs/results/figR_bland_altman_area_fov.jpg",
+    "confidence_sweeps": "figs/results/figR_confidence_sweeps.jpg",
+    "notes": "figs/results/NOTES_plots.txt"
+  }
+}

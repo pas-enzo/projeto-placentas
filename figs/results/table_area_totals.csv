@@ -1,0 +1,3 @@
+task,n_units,gt_count_sum,ai_count_sum,matched_sum,fp_sum,fn_sum,gt_area_um2,ai_area_um2,area_rel_error_from_totals,area_factor_um2_per_px2,source
+microcotyledon,27,852.0,868.0,775.0,93.0,77.0,1482185.8229,1471864.2645999996,0.0069637410778936835,0.36064143861348075,v2_rfdetr_seg_large_opt_v1\artifacts\reports\seg_large_r672_auto\placenta_totals_report_rfdetr.csv
+capillary,243,5568.0,4928.0,3809.0,1119.0,1759.0,574791.9380402442,563838.1580566154,0.019056947842685024,0.011524823461313616,v3_capilar_yolo11s\artifacts_v4\reports\capilar_tile_totals_report.csv

@@ -1,0 +1,2 @@
+figR_confidence_sweeps.jpg panel B uses TILE-level sweep (artifacts_v4/validation_conf_sweep.csv), because the FOV/SAHI sweep currently has a single operating point (conf=0.33 only).
+Scatter and Bland–Altman for capillaries use FOV/SAHI totals (artifacts_v4_field/capilar_field_totals_report.csv).

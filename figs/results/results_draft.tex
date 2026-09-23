@@ -1,0 +1,65 @@
+% Results draft — numbers from figs/results/* and pipeline artifacts (2026-09-22).
+% NOTE: Methods still has older "tile-level only" wording for capillaries; align Methods
+% to FOV/SAHI morphometric reporting when you paste this Results block.
+
+\section{Results}
+
+Unless otherwise stated, all instance metrics were computed after the task-specific confidence calibration described in Section~2.2.5 (IoU matching threshold $0.5$; operating point maximizing $S(c)$). Physical areas used the conversion factors defined in Section~2.2.2.
+
+\subsection{Microcotyledon segmentation}
+
+On the 27 held-out fields, RF-DETR Seg Large (run \texttt{seg\_large\_r672\_auto}) at the calibrated threshold $c^{*}=0.44$ achieved precision $0.893$, recall $0.910$, F1-score $0.901$, and mean matched-instance IoU $0.905$ (Table~\ref{tab:operating-points}). Aggregate segmented area agreed with ground truth within $0.70\%$ (GT $1.482\times10^{6}\,\mu\mathrm{m}^{2}$ vs.\ predicted $1.472\times10^{6}\,\mu\mathrm{m}^{2}$). Instance counts summed to 852 ground-truth and 868 predicted microcotyledons across the validation set (775 true positives, 93 false positives, 77 false negatives).
+
+Per-field microcotyledonary areas were strongly correlated between ground truth and predictions ($r=0.936$; Fig.~\ref{fig:area-scatter}A). The mean absolute per-field relative area error was $6.7\%$ (median $4.9\%$). Per-field instance counts were likewise highly correlated ($r=0.956$; mean $31.6$ GT vs.\ $32.1$ predicted instances per field).
+
+% Optional figure:
+% \includegraphics ... figs/results/figR_area_scatter_fov.jpg
+% \includegraphics ... existing iou_viz overlays for qualitative panel
+
+\subsection{Capillary segmentation}
+
+YOLO11s-seg was trained on non-overlapping native-resolution tiles. Morphometric reporting at the field-of-view level used sliced inference with overlap (SAHI; slice $1380\times1032$, overlap ratio $0.2$) and greedy NMM post-processing (IOS match threshold $0.5$) to merge detections across windows, yielding per-image counts and areas on the same 27 validation fields.
+
+At $c^{*}=0.33$, field-level evaluation gave precision $0.770$, recall $0.660$, F1-score $0.711$, and mean matched-instance IoU $0.783$ (Table~\ref{tab:operating-points}). Aggregate capillary area agreed with ground truth within $0.45\%$ (GT $5.785\times10^{5}\,\mu\mathrm{m}^{2}$ vs.\ predicted $5.811\times10^{5}\,\mu\mathrm{m}^{2}$). Across fields, predicted areas correlated with ground truth at $r=0.844$ (Fig.~\ref{fig:area-scatter}B); the mean absolute per-field relative area error was $13.6\%$ (median $9.3\%$). Mean capillary counts per field were $191.3$ (GT) and $163.7$ (predicted), with count correlation $r=0.719$, consistent with the lower recall relative to the microcotyledon task.
+
+For reference, the same checkpoint evaluated tile-wise on the 243 validation tiles (no cross-tile merge) yielded F1 $0.726$, mean IoU $0.795$, and aggregate AreaRelErr $1.91\%$ at the same $c^{*}$ (Table~\ref{tab:operating-points}). Tile-level scores are reported as a training-resolution diagnostic; all morphometric claims below refer to the field-level SAHI results.
+
+\subsection{Operating points and calibration}
+
+Table~\ref{tab:operating-points} summarizes the selected operating points. The calibrated thresholds differed between tasks ($0.44$ for microcotyledons vs.\ $0.33$ for capillaries), confirming that confidence is not portable across models or object scales. Confidence sweeps (Fig.~\ref{fig:conf-sweeps}) showed the expected precision--recall trade-off; the chosen $c^{*}$ maximized $S(c)$ on each task's validation units.
+
+\begin{table}[H]
+\centering
+\caption{Calibrated operating points on the validation split.
+Microcotyledon metrics are field-level (27 FOVs).
+Capillary metrics are shown at field level after SAHI merge (27 FOVs; primary)
+and at tile level without merge (243 tiles; diagnostic).}
+\label{tab:operating-points}
+\begin{tabular}{llcccccc}
+\hline
+Task & Unit & $c^{*}$ & P & R & F1 & IoU & AreaRelErr \\
+\hline
+Microcotyledon (RF-DETR) & FOV & 0.44 & 0.893 & 0.910 & 0.901 & 0.905 & 0.70\% \\
+Capillary (YOLO11s) & FOV+SAHI & 0.33 & 0.770 & 0.660 & 0.711 & 0.783 & 0.45\% \\
+Capillary (YOLO11s) & tile & 0.33 & 0.773 & 0.684 & 0.726 & 0.795 & 1.91\% \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsection{Inference time and resource use}
+
+Inference throughput was measured at batch size 1 and the calibrated confidence of each task (warmup 1 pass; 3 timed repeats over the corresponding validation units). RF-DETR Seg Large processed validation fields at $39.9\,\mathrm{ms}$/FOV ($25.0$ FOV/s; peak GPU memory $840\,\mathrm{MB}$) on the 16\,GB workstation used for microcotyledon training. YOLO11s-seg processed validation tiles at $32.6\,\mathrm{ms}$/tile ($30.7$ tiles/s; peak GPU memory $181\,\mathrm{MB}$) on a 4\,GB GPU (NVIDIA GeForce GTX 1650 SUPER). These measurements are not directly comparable as a hardware baseline because units (FOV vs.\ tile) and GPUs differ; field-level capillary latency additionally depends on the number of SAHI windows per native frame and was not timed separately in this study.
+
+% Optional figures (already generated; copy to Overleaf figs/ if used):
+% Fig area scatter: figs/results/figR_area_scatter_fov.jpg
+% Fig Bland-Altman: figs/results/figR_bland_altman_area_fov.jpg
+% Fig conf sweeps:  figs/results/figR_confidence_sweeps.jpg  (panel B = tile sweep)
+
+% Provenance (do not paste into paper):
+% Micro OP: v2_rfdetr_seg_large_opt_v1/artifacts/benchmarks/validation_conf_sweep_seg_large_r672_auto.csv @ conf 0.44
+% Micro areas: .../reports/seg_large_r672_auto/placenta_totals_report_rfdetr.csv
+% Cap FOV: v3_capilar_yolo11s/artifacts_v4_field/benchmarks/selected_confidence_field.json
+% Cap FOV per-image: .../reports/capilar_field_totals_report.csv
+% Cap tile OP: .../artifacts_v4/benchmarks/validation_conf_sweep.csv @ conf 0.33
+% Infer micro: .../inference_benchmark_seg_large_r672_auto.json
+% Infer cap tile: .../inference_benchmark_capilar_yolo11s_tiled_v4.json

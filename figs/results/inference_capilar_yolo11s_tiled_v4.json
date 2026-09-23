@@ -1,0 +1,23 @@
+{
+  "model": "yolo11s-seg",
+  "run_name": "capilar_yolo11s_tiled_v4",
+  "checkpoint": "D:\\projeto_placentas_clayton\\dev\\projeto-placentas\\v3_capilar_yolo11s\\runs\\capilar_yolo11s_tiled_v4\\weights\\best.pt",
+  "eval_unit": "tile",
+  "conf": 0.33,
+  "imgsz": 640,
+  "n_images": 243,
+  "repeats": 3,
+  "warmup": 1,
+  "batch_size": 1,
+  "half": false,
+  "device": "0",
+  "gpu_name": "NVIDIA GeForce GTX 1650 SUPER",
+  "gpu_vram_gb": 4.0,
+  "elapsed_sec_mean": 7.926551466691308,
+  "elapsed_sec_std": 0.10351978028251409,
+  "images_per_sec": 30.65645899369058,
+  "ms_per_unit": 32.61955336086958,
+  "peak_gpu_mem_mb": 181.34033203125,
+  "dataset_dir": "D:\\projeto_placentas_clayton\\dataset_v3.1_yolo11_tiled_3x3\\valid\\images",
+  "notes": "Tile-level only; do not multiply by 9 as FOV latency without stating estimate."
+}

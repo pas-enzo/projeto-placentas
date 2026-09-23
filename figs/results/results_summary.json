@@ -1,0 +1,92 @@
+{
+  "generated_by": "figs/results/_consolidate_results_artifacts.py",
+  "microcotyledon": {
+    "champion_run.json": {
+      "model": "RFDETRSegLarge",
+      "run_name": "seg_large_r672_auto",
+      "best_conf": 0.44,
+      "checkpoint": "C:\\Users\\edual\\projeto-placentas\\codespace\\v2_rfdetr_seg_large_opt_v1\\artifacts\\runs\\seg_large_r672_auto\\checkpoint_best_total.pth",
+      "score": 0.9116264146074771
+    },
+    "operating_point_from_conf_sweep": {
+      "conf": 0.44,
+      "tp": 775.0,
+      "fp": 93.0,
+      "fn": 77.0,
+      "precision": 0.8928571428571429,
+      "recall": 0.9096244131455399,
+      "f1": 0.9011627906976744,
+      "mean_iou": 0.9054170475820253,
+      "gt_total_area_px": 4109860.0,
+      "pred_total_area_px": 4081240.0,
+      "area_rel_error": 0.0069637408573528055,
+      "score": 0.9116264146074771,
+      "run_name": "seg_large_r672_auto"
+    },
+    "area_totals": {
+      "n_fov": 27,
+      "gt_area_um2": 1482185.8229,
+      "ai_area_um2": 1471864.2645999996,
+      "area_rel_error_from_totals": 0.0069637410778936835,
+      "implied_area_factor": 0.36064143861348075,
+      "note": "AreaRelErr in sweep uses px totals; totals CSV also stores \u00b5m\u00b2 with project factor (~0.3606)."
+    },
+    "inference": {
+      "model": "RFDETRSegLarge",
+      "run_name": "seg_large_r672_auto",
+      "checkpoint": "C:\\Users\\edual\\projeto-placentas\\codespace\\v2_rfdetr_seg_large_opt_v1\\artifacts\\runs\\seg_large_r672_auto\\checkpoint_best_total.pth",
+      "conf": 0.44,
+      "n_images": 27,
+      "repeats": 3,
+      "warmup": 1,
+      "elapsed_sec_mean": 1.0780351161956787,
+      "elapsed_sec_std": 0.03752946308419809,
+      "images_per_sec": 25.04556632188512,
+      "peak_gpu_mem_mb": 840.4873046875
+    },
+    "ms_per_fov_derived": 39.92722652576588,
+    "ms_per_fov_formula": "1000 * elapsed_sec_mean / n_images"
+  },
+  "capillary": {
+    "selected_confidence.json": {
+      "model": "yolo11s-seg",
+      "run_name": "capilar_yolo11s_tiled_v4",
+      "checkpoint": "D:\\projeto_placentas_clayton\\dev\\projeto-placentas\\v3_capilar_yolo11s\\runs\\capilar_yolo11s_tiled_v4\\weights\\best.pt",
+      "best_conf": 0.33,
+      "f1": 0.7258003048780487,
+      "mean_iou": 0.7950624685220785,
+      "area_rel_error": 0.0190569478426854,
+      "weighted_score": 0.7976075034271108,
+      "area_factor_um2_per_px2": 0.011524823461313616,
+      "classes": [
+        0
+      ],
+      "notes": "Tile-level metrics on Capilar only; field-level merge TBD"
+    },
+    "operating_point_from_conf_sweep": {
+      "conf": 0.33,
+      "tp": 3809.0,
+      "fp": 1119.0,
+      "fn": 1759.0,
+      "precision": 0.7729301948051948,
+      "recall": 0.6840876436781609,
+      "f1": 0.7258003048780487,
+      "mean_iou": 0.7950624685220785,
+      "gt_area_px": 49874251.0,
+      "pred_area_px": 48923800.0,
+      "gt_area_um2": 574791.938040244,
+      "pred_area_um2": 563838.158056615,
+      "area_rel_error": 0.0190569478426854,
+      "score": 0.7976075034271108
+    },
+    "n_tiles": 243,
+    "inference": null,
+    "inference_status": "PENDING"
+  },
+  "outputs": {
+    "table_operating_points.csv": "figs/results/table_operating_points.csv",
+    "table_area_totals.csv": "figs/results/table_area_totals.csv",
+    "table_inference.csv": "figs/results/table_inference.csv",
+    "figure_manifest.json": "figs/results/figure_manifest.json"
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "model": "yolo11s-seg",
+  "run_name": "capilar_yolo11s_tiled_v4",
+  "checkpoint": "D:\\projeto_placentas_clayton\\dev\\projeto-placentas\\v3_capilar_yolo11s\\runs\\capilar_yolo11s_tiled_v4\\weights\\best.pt",
+  "eval": "sahi_field",
+  "slice": [
+    1380,
+    1032
+  ],
+  "overlap": 0.2,
+  "perform_standard_pred": false,
+  "conf": 0.33,
+  "f1": 0.7106937923839332,
+  "mean_iou": 0.7829810055609218,
+  "area_rel_error": 0.004519500105803763,
+  "precision": 0.7704139334992083,
+  "recall": 0.6595662277304415,
+  "tp": 3406,
+  "fp": 1015,
+  "fn": 1758,
+  "n_fov": 27,
+  "best_conf": 0.33,
+  "weighted_score": 0.7893372978390824,
+  "area_factor_um2_per_px2": 0.011524823461313616
+}

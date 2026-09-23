@@ -1,0 +1,7 @@
+path: D:/projeto_placentas_clayton/dataset_v3.1_yolo11_tiled_3x3_macenko
+train: train/images
+val: valid/images
+nc: 2
+names:
+  0: Capilar
+  1: microcotiledone

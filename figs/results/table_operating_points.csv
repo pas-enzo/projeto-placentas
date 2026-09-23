@@ -1,3 +1,4 @@
-task,model,run_name,eval_unit,n_units,conf_star,S_c,precision,recall,f1,mean_iou,area_rel_error,source
-microcotyledon,RF-DETR Seg Large,seg_large_r672_auto,FOV,27,0.44,0.9116264146074771,0.8928571428571429,0.9096244131455399,0.9011627906976744,0.9054170475820253,0.0069637408573528055,v2_rfdetr_seg_large_opt_v1\artifacts\benchmarks\validation_conf_sweep_seg_large_r672_auto.csv
-capillary,YOLO11s-seg,capilar_yolo11s_tiled_v4,tile,243,0.33,0.7976075034271108,0.7729301948051948,0.6840876436781609,0.7258003048780487,0.7950624685220785,0.0190569478426854,v3_capilar_yolo11s\artifacts_v4\benchmarks\validation_conf_sweep.csv
+task,model,run_name,eval_unit,n_units,conf_star,S_c,precision,recall,f1,mean_iou,area_rel_error,score_formula,source
+microcotyledon,RF-DETR Seg Large,seg_large_r672_auto,FOV,27,0.44,0.9116264146074771,0.8928571428571429,0.9096244131455399,0.9011627906976744,0.9054170475820253,0.0069637408573528055,0.6*F1 + 0.3*mean_IoU + 0.1*(1-AreaRelErr),validation_conf_sweep_seg_large_r672_auto.csv
+capillary,YOLO11s-seg,capilar_yolo11s_tiled_v4,FOV+SAHI,27,0.33,0.760858627088056,0.7704139334992083,0.6595662277304415,0.7106937923839332,0.7829810055609218,0.004519500105803763,0.6*F1 + 0.3*mean_IoU + 0.1*(1-AreaRelErr),selected_confidence_field.json (rescored)
+capillary,YOLO11s-seg,capilar_yolo11s_tiled_v4,tile,243,0.33,0.7720932286991842,0.7729301948051948,0.6840876436781609,0.7258003048780487,0.7950624685220785,0.0190569478426854,0.6*F1 + 0.3*mean_IoU + 0.1*(1-AreaRelErr),validation_conf_sweep.csv rescored 0.6/0.3/0.1

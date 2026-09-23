@@ -1,0 +1,17 @@
+{
+  "model": "yolo11s-seg",
+  "run_name": "capilar_yolo11s_tiled_macenko_v1",
+  "checkpoint": "D:\\projeto_placentas_clayton\\dev\\projeto-placentas\\v3_capilar_yolo11s\\runs\\capilar_yolo11s_tiled_macenko_v1\\weights\\best.pt",
+  "conf": 0.33,
+  "f1": 0.6878589819766291,
+  "mean_iou": 0.7769088535769889,
+  "precision": 0.7666666666666667,
+  "recall": 0.623742816091954,
+  "area_rel_error": 0.07477194995870715,
+  "mask_map50": 0.734162026629941,
+  "v4_f1_at_0.33": 0.7258003048780487,
+  "v4_mean_iou": 0.7950624685220785,
+  "v4_mask_map50": 0.778,
+  "delta_f1": -0.037941322901419605,
+  "keep": false
+}

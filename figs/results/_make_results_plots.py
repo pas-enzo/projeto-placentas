@@ -173,6 +173,11 @@ def plot_bland_altman() -> None:
     save(fig, "figR_bland_altman_area_fov.jpg")
 
 
+def score_S(f1: np.ndarray, iou: np.ndarray, are: np.ndarray) -> np.ndarray:
+    """Methods / shared operating-point score: 0.6 F1 + 0.3 IoU + 0.1 (1-ARE)."""
+    return 0.6 * f1 + 0.3 * iou + 0.1 * (1.0 - are)
+
+
 def plot_conf_sweeps() -> None:
     micro = read_csv(MICRO_SWEEP)
     cap = read_csv(CAP_TILE_SWEEP)
@@ -180,7 +185,7 @@ def plot_conf_sweeps() -> None:
     micro = sorted(micro, key=lambda r: float(r["conf"]))
     cap = sorted(cap, key=lambda r: float(r["conf"]))
 
-    fig, axes = plt.subplots(1, 2, figsize=(10.5, 4.6), sharey=False)
+    fig, axes = plt.subplots(1, 2, figsize=(10.5, 4.8), sharey=False)
 
     for ax, rows, conf_star, title, unit in [
         (axes[0], micro, MICRO_CONF, "A  Microcotyledon confidence sweep", "FOV"),
@@ -190,38 +195,49 @@ def plot_conf_sweeps() -> None:
         f1 = fcol(rows, "f1")
         iou = fcol(rows, "mean_iou")
         are = fcol(rows, "area_rel_error")
+        # Prefer CSV score if already Methods-aligned; else recompute
+        if "score" in rows[0]:
+            sc = fcol(rows, "score")
+            # Capillary CSV may have been rescored; micro always used 0.6/0.3/0.1
+            sc_check = score_S(f1, iou, are)
+            if np.max(np.abs(sc - sc_check)) > 1e-4:
+                sc = sc_check
+        else:
+            sc = score_S(f1, iou, are)
+
         ax.plot(conf, f1, "o-", color="#1F4E79", lw=1.6, ms=4, label="F1")
         ax.plot(conf, iou, "s-", color="#2E7D32", lw=1.6, ms=4, label="mean IoU")
         ax.plot(conf, are, "^-", color="#C0392B", lw=1.6, ms=4, label="AreaRelErr")
+        ax.plot(conf, sc, "D-", color="#6A1B9A", lw=1.8, ms=4, label=r"$S(c)$ 0.6/0.3/0.1")
         ax.axvline(conf_star, color="#666666", ls="--", lw=1.2, label=f"conf* = {conf_star}")
         ax.set_xlabel("Confidence threshold")
         ax.set_ylabel("Score")
         ax.set_title(title, loc="left", fontweight="bold")
         ax.set_xlim(conf.min() - 0.02, conf.max() + 0.02)
         ax.set_ylim(0, 1.05)
-        ax.legend(loc="best", fontsize=8)
+        ax.legend(loc="best", fontsize=7.5)
         ax.text(
             0.98,
             0.04,
-            f"eval unit: {unit}",
+            f"eval unit: {unit}\n$S(c)=0.6F1+0.3IoU+0.1(1-ARE)$",
             transform=ax.transAxes,
             ha="right",
             va="bottom",
-            fontsize=8,
+            fontsize=7.5,
             color="#555555",
         )
         style_ax(ax)
 
     save(fig, "figR_confidence_sweeps.jpg")
 
-    # Note file: capillary FOV SAHI sweep only has 1 row currently
     note = OUT / "NOTES_plots.txt"
     note.write_text(
-        "figR_confidence_sweeps.jpg panel B uses TILE-level sweep "
-        "(artifacts_v4/validation_conf_sweep.csv), because the FOV/SAHI sweep "
-        "currently has a single operating point (conf=0.33 only).\n"
-        "Scatter and Bland–Altman for capillaries use FOV/SAHI totals "
-        "(artifacts_v4_field/capilar_field_totals_report.csv).\n",
+        "figR_confidence_sweeps.jpg\n"
+        "- Both panels use S(c) = 0.6*F1 + 0.3*mean_IoU + 0.1*(1-AreaRelErr) (Methods).\n"
+        "- Panel A: microcot FOV sweep (RF-DETR).\n"
+        "- Panel B: capillary TILE sweep (artifacts_v4); FOV/SAHI currently has conf=0.33 only.\n"
+        "- Scatter / Bland–Altman capillaries: FOV/SAHI totals.\n"
+        "- Capillary conf* remained 0.33 after rescoring to Methods weights.\n",
         encoding="utf-8",
     )
     print("saved", note)

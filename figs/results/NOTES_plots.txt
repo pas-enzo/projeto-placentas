@@ -1,2 +1,6 @@
-figR_confidence_sweeps.jpg panel B uses TILE-level sweep (artifacts_v4/validation_conf_sweep.csv), because the FOV/SAHI sweep currently has a single operating point (conf=0.33 only).
-Scatter and Bland–Altman for capillaries use FOV/SAHI totals (artifacts_v4_field/capilar_field_totals_report.csv).
+figR_confidence_sweeps.jpg
+- Both panels use S(c) = 0.6*F1 + 0.3*mean_IoU + 0.1*(1-AreaRelErr) (Methods).
+- Panel A: microcot FOV sweep (RF-DETR).
+- Panel B: capillary TILE sweep (artifacts_v4); FOV/SAHI currently has conf=0.33 only.
+- Scatter / Bland–Altman capillaries: FOV/SAHI totals.
+- Capillary conf* remained 0.33 after rescoring to Methods weights.

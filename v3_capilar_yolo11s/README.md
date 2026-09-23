@@ -12,9 +12,12 @@ Abra e execute:
 
 O notebook:
 
-1. treina **YOLO11s-seg** só na classe `Capilar` (`classes=[0]`, ignora `microcotiledone`)
-2. faz confidence sweep no valid (tiles)
-3. exporta F1 / IoU / erro de área e o melhor `conf`
+1. treina só a classe `Capilar` (`classes=[0]`)
+2. **v4** (run `capilar_yolo11s_tiled_v4`): YOLO11s campeão (mask mAP50 0,778)
+3. **v5** (run `capilar_yolo26s_tiled_v1`): YOLO26s-seg; artefatos em `artifacts_yolo26s/`
+4. faz confidence sweep no valid (tiles) e exporta F1 / IoU / erro de área
+
+Modo atual do notebook: **`DO_TRAIN = False`**, sweep do **v4** em `artifacts_v4/` (não sobrescreve v3/26s). Para retreinar, `DO_TRAIN = True` e ajuste `run_name`.
 
 ## Calibração de área
 

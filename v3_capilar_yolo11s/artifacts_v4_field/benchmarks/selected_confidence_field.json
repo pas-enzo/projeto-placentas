@@ -20,6 +20,8 @@
   "fn": 1758,
   "n_fov": 27,
   "best_conf": 0.33,
-  "weighted_score": 0.7893372978390824,
-  "area_factor_um2_per_px2": 0.011524823461313616
+  "weighted_score": 0.760858627088056,
+  "area_factor_um2_per_px2": 0.011524823461313616,
+  "score_formula": "0.6*F1 + 0.3*mean_IoU + 0.1*(1-AreaRelErr)",
+  "score_formula_note": "Rescored to Methods criterion; FOV/SAHI sweep currently has only conf=0.33."
 }

@@ -104,15 +104,65 @@ def predict(
     return _to_rgb(bgr), _to_rgb(overlay_bgr), "\n".join(lines)
 
 
+def _legend_html() -> str:
+    """Compact swatches; vertically aligned with label text."""
+    return """
+<div style="display:flex;flex-wrap:wrap;gap:14px 22px;align-items:center;
+            line-height:1.2;margin:6px 0 10px 0;color:inherit;">
+  <strong style="display:inline-flex;align-items:center;height:1.2em;">Legenda</strong>
+  <span style="display:inline-flex;align-items:center;gap:8px;height:1.2em;">
+    <span style="width:20px;height:12px;border-radius:2px;background:#00ff00;
+                 border:2px solid #ffff00;display:inline-block;box-sizing:border-box;
+                 flex-shrink:0;"></span>
+    <span style="display:inline-flex;align-items:center;">Microcotilédones</span>
+  </span>
+  <span style="display:inline-flex;align-items:center;gap:8px;height:1.2em;">
+    <span style="width:20px;height:12px;border-radius:2px;background:#00ffff;
+                 border:2px solid #ffff00;display:inline-block;box-sizing:border-box;
+                 flex-shrink:0;"></span>
+    <span style="display:inline-flex;align-items:center;">Capilares</span>
+  </span>
+</div>
+""".strip()
+
+
 def build_app() -> gr.Blocks:
-    with gr.Blocks(title="Histomorfometria Placentária Equina") as demo:
+    # Only background + primary accents (replaces default orange).
+    theme = gr.themes.Default().set(
+        body_background_fill="#1e1f22",
+        body_background_fill_dark="#1e1f22",
+        button_primary_background_fill="#5E6DBA",
+        button_primary_background_fill_hover="#4F5DA8",
+        button_primary_background_fill_dark="#5E6DBA",
+        button_primary_background_fill_hover_dark="#4F5DA8",
+        button_primary_text_color="#ffffff",
+        button_primary_text_color_dark="#ffffff",
+        # Radio selected + loading spinner (Gradio accent).
+        checkbox_background_color_selected="#5E6DBA",
+        checkbox_background_color_selected_dark="#5E6DBA",
+        checkbox_border_color_selected="#5E6DBA",
+        checkbox_border_color_selected_dark="#5E6DBA",
+        color_accent="#5E6DBA",
+        color_accent_soft="#5E6DBA",
+        color_accent_soft_dark="#5E6DBA",
+        border_color_accent="#5E6DBA",
+        border_color_accent_dark="#5E6DBA",
+        border_color_accent_subdued="#5E6DBA",
+        border_color_accent_subdued_dark="#5E6DBA",
+    )
+
+    with gr.Blocks(
+        title="Histomorfometria Placentária Equina",
+        theme=theme,
+    ) as demo:
+        # Legend lives in the same Markdown block so left edge matches the title.
         gr.Markdown(
-            """
+            f"""
 # Histomorfometria Placentária Equina
 
 Envie um **FOV nativo** para quantificar microcotilédones (RF-DETR) e/ou capilares (YOLO11s-seg + SAHI).
 
-**Legenda do overlay:** verde = microcotilédones · ciano = capilares · contorno amarelo = contorno das instâncias
+{_legend_html()}
             """.strip()
         )
 

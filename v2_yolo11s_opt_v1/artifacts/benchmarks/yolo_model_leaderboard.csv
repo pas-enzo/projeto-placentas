@@ -1,3 +1,0 @@
-model_family,variant,conf,checkpoint,f1,mean_iou,area_rel_error,images_per_sec,area_consistency,weighted_score
-yolo11s_seg,placentas_v11_aug_v2,0.46,D:\projeto_placentas_clayton\dev\projeto-placentas\v2\runs\segment\placentas_v11_aug_v2\weights\best.pt,0.888755980861244,0.8809247727434629,0.0061764046046806,15.392880652859413,0.9938235953953194,0.9074201413327248
-yolo11m_seg,placentas_v11m_v2.13,0.4655,D:\projeto_placentas_clayton\dev\projeto-placentas\v2.1_yolo_11_m\runs\segment\placentas_v11m_v2.13\weights\best.pt,0.8854,0.8818,0.015,12.0,0.985,0.9008

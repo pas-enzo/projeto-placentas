@@ -1,6 +1,0 @@
-{
-  "run_name": "seg_small_optA_r560_acc16_lr1e4",
-  "best_conf": 0.46,
-  "checkpoint": "D:\\projeto_placentas_clayton\\dev\\projeto-placentas\\v2_rfdetr_opt_v1\\artifacts\\runs\\seg_small_optA_r560_acc16_lr1e4\\checkpoint_best_total.pth",
-  "score": 0.9072121538169418
-}

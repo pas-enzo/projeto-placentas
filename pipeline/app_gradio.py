@@ -51,7 +51,6 @@ def _to_rgb(bgr: np.ndarray) -> np.ndarray:
 def predict(
     image: np.ndarray | None,
     mode: str,
-    device: str,
 ) -> tuple[np.ndarray | None, np.ndarray | None, str]:
     if image is None:
         raise gr.Error("Envie uma imagem FOV (resolução nativa).")
@@ -60,8 +59,8 @@ def predict(
     if mode not in {"micro", "capilar", "both"}:
         raise gr.Error("Modo de análise inválido.")
 
-    dev = None if device == "auto" else device
-    _ensure_models(mode, dev)
+    # Always auto: CUDA if available, otherwise CPU (set inside model loaders).
+    _ensure_models(mode, device=None)
 
     bgr = _bgr_from_upload(image)
     h, w = bgr.shape[:2]
@@ -131,17 +130,9 @@ Envie um **FOV nativo** para quantificar microcotilédones (RF-DETR) e/ou capila
                     value="both",
                     label="Tipo de análise",
                 )
-                with gr.Accordion("Avançado", open=False):
-                    device = gr.Dropdown(
-                        choices=[
-                            ("Automático", "auto"),
-                            ("GPU (CUDA)", "cuda:0"),
-                            ("CPU", "cpu"),
-                        ],
-                        value="auto",
-                        label="Dispositivo",
-                    )
-                btn = gr.Button("Rodar Inferência", variant="primary", size="lg")
+                with gr.Row():
+                    btn = gr.Button("Rodar Inferência", variant="primary", scale=2)
+                    btn_clear = gr.Button("Limpar", variant="secondary", scale=1)
 
             with gr.Column(scale=2, min_width=480):
                 gr.Markdown("### Resultados")
@@ -166,8 +157,17 @@ Envie um **FOV nativo** para quantificar microcotilédones (RF-DETR) e/ou capila
 
         btn.click(
             fn=predict,
-            inputs=[inp, mode, device],
+            inputs=[inp, mode],
             outputs=[out_orig, out_pred, out_txt],
+        )
+
+        def _clear():
+            return None, None, None, ""
+
+        btn_clear.click(
+            fn=_clear,
+            inputs=None,
+            outputs=[inp, out_orig, out_pred, out_txt],
         )
     return demo
 

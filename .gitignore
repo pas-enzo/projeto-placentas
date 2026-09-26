@@ -25,6 +25,7 @@ archive/weights_base/**
 
 # --- Training run directories (checkpoints, Ultralytics logs) ---
 **/runs/
+archive/experiments/root_runs/
 
 # --- Heavy overlay images (regenerate from notebooks) ---
 **/iou_viz/
@@ -47,7 +48,8 @@ v3_capilar_yolo11s/artifacts_*/**
 # Microcotyledon (RF-DETR Large): keep benchmarks/reports/preprocessing; drop runs + iou
 v2_rfdetr_seg_large_opt_v1/artifacts/runs/
 
-# Archived RF-DETR early run dumps (if any remain outside **/runs/)
+# Archived RF-DETR early run dumps (if any remain outside **/runs/
+archive/experiments/root_runs/)
 archive/experiments/v2_rf_detr_early/runs/*
 !archive/experiments/v2_rf_detr_early/runs/.gitkeep
 archive/experiments/v2_rfdetr_seg_small/artifacts/runs/

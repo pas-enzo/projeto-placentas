@@ -14,27 +14,40 @@ env/
 .DS_Store
 Thumbs.db
 
-# --- Large ML / training artifacts ---
-# Lightning checkpoints (RF-DETR training); often 500MB+ each
+# --- Weights / checkpoints (never version) ---
 *.ckpt
-
-# RF-DETR: Roboflow-downloaded base weights + anything under training runs
-v2_rf_detr/rf-detr*.pt
-v2_rf_detr/runs/*
-!v2_rf_detr/runs/.gitkeep
-
-# RF-DETR optimization workspace artifacts (keep notebook/code, skip heavy outputs)
-v2_rfdetr_opt_v1/artifacts/runs/*
-v2_rfdetr_opt_v1/notebooks/rf-detr-seg-small.pt
-
-# RF-DETR Seg Large optimization (keep notebook/viz/reports/benchmarks; move .pth via scp)
-v2_rfdetr_seg_large_opt_v1/artifacts/runs/**/*.pth
-yolo11n-seg.pt
-
-# Generic RF-DETR-style checkpoints (YOLO weights use .pt and are handled separately)
 *.pth
+*.pt
 
-# Capillary pipeline (pipeline 2) training runs / heavy outputs
-v3_capilar_yolo11s/runs/
-v3_capilar_yolo11s/artifacts/**
+# Base / downloaded weights (local only). Keep README.
+archive/weights_base/**
+!archive/weights_base/README.md
+
+# --- Training run directories (checkpoints, Ultralytics logs) ---
+**/runs/
+
+# --- Heavy overlay images (regenerate from notebooks) ---
+**/iou_viz/
+**/iou_imaging/
+
+# Capillary stain-preview JPGs (local only)
+v3_capilar_yolo11s/artifacts_*/stain_preview/
+
+# Capillary: ignore generated trees except light metrics (benchmarks + reports)
+v3_capilar_yolo11s/artifacts_*/**
+!v3_capilar_yolo11s/artifacts_*/
+!v3_capilar_yolo11s/artifacts_*/benchmarks/
+!v3_capilar_yolo11s/artifacts_*/benchmarks/**
+!v3_capilar_yolo11s/artifacts_*/reports/
+!v3_capilar_yolo11s/artifacts_*/reports/**
+
+# Keep empty placeholder if present
 !v3_capilar_yolo11s/artifacts/.gitkeep
+
+# Microcotyledon (RF-DETR Large): keep benchmarks/reports/preprocessing; drop runs + iou
+v2_rfdetr_seg_large_opt_v1/artifacts/runs/
+
+# Archived RF-DETR early run dumps (if any remain outside **/runs/)
+archive/experiments/v2_rf_detr_early/runs/*
+!archive/experiments/v2_rf_detr_early/runs/.gitkeep
+archive/experiments/v2_rfdetr_seg_small/artifacts/runs/

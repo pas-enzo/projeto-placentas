@@ -1,10 +1,13 @@
 ﻿# Keep Cursor from indexing/snapshotting heavy ML artifacts onto C:
 **/runs/**
 **/weights/**
+**/iou_viz/**
+**/iou_imaging/**
 **/*.pt
 **/*.pth
 **/*.ckpt
 **/artifacts/**
+**/artifacts_*/
 **/.ipynb_checkpoints/**
 **/train/images/**
 **/valid/images/**

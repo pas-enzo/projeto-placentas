@@ -34,7 +34,8 @@ No models were re-trained. Capillary inference latency was NOT measured in this 
 | Per-FOV counts/areas | `artifacts_v4_field/reports/capilar_field_totals_report.csv` (27 FOVs) |
 | Protocol | SAHI slices 1380×1032, **overlap=0.2** — not the same as non-overlapping 3×3 border stitch |
 
-Methods primary = **tile-level**. Field SAHI is optional / exploratory unless Methods is updated.
+Methods primary morphometry for capillaries = **FOV + SAHI** (`artifacts_v4_field`). Tile-level scores are diagnostic only.
+
 
 ## Outputs in `figs/results/`
 

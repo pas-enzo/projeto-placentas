@@ -1,5 +1,0 @@
-names:
-  0: microcotiledone
-path: D:/projeto_placentas_clayton/dataset_v2_ready_for_yolo
-train: train/images
-val: valid/images

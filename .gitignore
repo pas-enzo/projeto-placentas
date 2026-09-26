@@ -53,3 +53,7 @@ archive/experiments/root_runs/)
 archive/experiments/v2_rf_detr_early/runs/*
 !archive/experiments/v2_rf_detr_early/runs/.gitkeep
 archive/experiments/v2_rfdetr_seg_small/artifacts/runs/
+
+# Pipeline local runs
+outputs/
+

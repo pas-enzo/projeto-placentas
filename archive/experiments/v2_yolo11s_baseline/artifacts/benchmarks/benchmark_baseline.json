@@ -1,0 +1,9 @@
+{
+  "tag": "baseline",
+  "half": false,
+  "conf": 0.46,
+  "n_images": 27,
+  "elapsed_sec": 1.7540576457977295,
+  "images_per_sec": 15.392880652859413,
+  "peak_gpu_mem_mb": 577.84912109375
+}

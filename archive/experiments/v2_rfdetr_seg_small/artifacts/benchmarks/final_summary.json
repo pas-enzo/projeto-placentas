@@ -1,0 +1,10 @@
+{
+  "champion_run": "seg_small_optA_r560_acc16_lr1e4",
+  "champion_conf": 0.46,
+  "champion_checkpoint": "D:\\projeto_placentas_clayton\\dev\\projeto-placentas\\v2_rfdetr_opt_v1\\artifacts\\runs\\seg_small_optA_r560_acc16_lr1e4\\checkpoint_best_total.pth",
+  "run_ranking_csv": "D:\\projeto_placentas_clayton\\dev\\projeto-placentas\\v2_rfdetr_opt_v1\\artifacts\\benchmarks\\run_ranking.csv",
+  "instance_report_csv": "D:\\projeto_placentas_clayton\\dev\\projeto-placentas\\v2_rfdetr_opt_v1\\artifacts\\reports\\seg_small_optA_r560_acc16_lr1e4\\placenta_instance_report_rfdetr.csv",
+  "totals_report_csv": "D:\\projeto_placentas_clayton\\dev\\projeto-placentas\\v2_rfdetr_opt_v1\\artifacts\\reports\\seg_small_optA_r560_acc16_lr1e4\\placenta_totals_report_rfdetr.csv",
+  "iou_viz_dir": "D:\\projeto_placentas_clayton\\dev\\projeto-placentas\\v2_rfdetr_opt_v1\\artifacts\\iou_viz\\seg_small_optA_r560_acc16_lr1e4",
+  "inference_benchmark_json": "D:\\projeto_placentas_clayton\\dev\\projeto-placentas\\v2_rfdetr_opt_v1\\artifacts\\benchmarks\\inference_benchmark_seg_small_optA_r560_acc16_lr1e4.json"
+}

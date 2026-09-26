@@ -1,0 +1,18 @@
+{
+  "model_family": "rfdetr_seg_small",
+  "variant": "seg_small_optA_r560_acc16_lr1e4",
+  "best_conf": 0.46,
+  "checkpoint": "D:\\projeto_placentas_clayton\\dev\\projeto-placentas\\v2_rfdetr_opt_v1\\artifacts\\runs\\seg_small_optA_r560_acc16_lr1e4\\checkpoint_best_total.pth",
+  "f1": 0.8991150442477877,
+  "mean_iou": 0.8968665247814886,
+  "area_rel_error": 0.0131683016617734,
+  "images_per_sec": 15.092861590426393,
+  "weighted_score": 0.9159838192259857,
+  "weights": {
+    "f1": 0.5,
+    "mean_iou": 0.3,
+    "area_consistency": 0.2,
+    "speed": 0.0
+  },
+  "overall_leaderboard_csv": "D:\\projeto_placentas_clayton\\dev\\projeto-placentas\\v2_rfdetr_opt_v1\\artifacts\\benchmarks\\overall_leaderboard.csv"
+}

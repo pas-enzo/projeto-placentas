@@ -52,7 +52,7 @@ Saídas em `--output`: `results.csv`, `summary.json`, `overlays/*_overlay.jpg` (
 D:\miniconda3\envs\PROJETO_PLACENTAS\python.exe -m pipeline.app_gradio
 ```
 
-Abre em [http://127.0.0.1:7860](http://127.0.0.1:7860): upload FOV → mode (`both`/`micro`/`capilar`) → overlay + métricas. Os pesos carregam na primeira inferência do mode escolhido.
+Abre em [http://127.0.0.1:7860](http://127.0.0.1:7860): upload FOV (sem webcam) → tipo de análise → painéis Original | Predição + métricas. Os pesos carregam na primeira inferência do modo escolhido.
 
 ## Scripts
 

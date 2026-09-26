@@ -44,7 +44,7 @@ D:\miniconda3\envs\PROJETO_PLACENTAS\python.exe -m pipeline ^
 
 Flags úteis: `--mode micro|capilar|both`, `--micro-conf`, `--capilar-conf`, `--no-overlays`, `--device cuda:0|cpu`.
 
-Saídas em `--output`: `results.csv`, `summary.json`, `overlays/*_overlay.jpg` (original | máscaras: micro=verde, capilar=vermelho).
+Saídas em `--output`: `results.csv`, `summary.json`, `overlays/*_overlay.jpg` (original | máscaras: micro=verde vivo+contorno amarelo, capilar=ciano+contorno amarelo).
 
 ## Scripts
 

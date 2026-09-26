@@ -37,46 +37,75 @@ def masks_square_to_native(
     return out
 
 
+def _mask_union(
+    masks: list[np.ndarray] | None, h: int, w: int, dilate_px: int = 0
+) -> np.ndarray:
+    u = np.zeros((h, w), dtype=np.uint8)
+    if not masks:
+        return u
+    for m in masks:
+        mm = m
+        if mm.shape[0] != h or mm.shape[1] != w:
+            mm = cv2.resize(mm.astype(np.uint8), (w, h), interpolation=cv2.INTER_NEAREST)
+        u = np.maximum(u, (mm > 0).astype(np.uint8))
+    if dilate_px > 0 and u.any():
+        k = 2 * dilate_px + 1
+        kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (k, k))
+        u = cv2.dilate(u, kernel, iterations=1)
+    return u
+
+
+def _blend(out: np.ndarray, mask: np.ndarray, color_bgr: tuple[int, int, int], alpha: float) -> None:
+    if not mask.any():
+        return
+    c = np.array(color_bgr, dtype=np.float32)
+    out[mask > 0] = ((1.0 - alpha) * out[mask > 0] + alpha * c).astype(np.uint8)
+
+
+def _draw_contours(
+    out: np.ndarray,
+    mask: np.ndarray,
+    color_bgr: tuple[int, int, int],
+    thickness: int,
+) -> None:
+    if not mask.any():
+        return
+    contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    cv2.drawContours(out, contours, -1, color_bgr, thickness, lineType=cv2.LINE_AA)
+
+
 def colorize_overlay(
     bgr: np.ndarray,
     micro_masks: list[np.ndarray] | None = None,
     capilar_masks: list[np.ndarray] | None = None,
-    alpha: float = 0.45,
+    *,
+    micro_alpha: float = 0.80,
+    capilar_alpha: float = 0.80,
 ) -> np.ndarray:
-    """Draw micro (green) and capillary (red) masks on a copy of the image."""
+    """Draw prediction overlays.
+
+    Micro = neon lime fill + yellow outline.
+    Capillary = cyan fill + yellow outline (drawn on top so it stays visible
+    inside microcotyledons; H&E is already red/pink).
+    """
     out = bgr.copy()
     h, w = out.shape[:2]
+    # Display-only dilation so thin capillary masks survive downscaling in side-by-side.
+    g = _mask_union(micro_masks, h, w, dilate_px=0)
+    r = _mask_union(capilar_masks, h, w, dilate_px=2)
 
-    def _union(masks: list[np.ndarray] | None) -> np.ndarray:
-        u = np.zeros((h, w), dtype=np.uint8)
-        if not masks:
-            return u
-        for m in masks:
-            mm = m
-            if mm.shape[0] != h or mm.shape[1] != w:
-                mm = cv2.resize(mm.astype(np.uint8), (w, h), interpolation=cv2.INTER_NEAREST)
-            u = np.maximum(u, (mm > 0).astype(np.uint8))
-        return u
+    _blend(out, g, (0, 255, 0), micro_alpha)  # BGR neon green
+    # Contour thickness scales with FOV so it survives side-by-side downscale.
+    micro_t = max(3, int(round(min(h, w) * 0.0025)))
+    cap_t = max(2, int(round(min(h, w) * 0.0015)))
+    _draw_contours(out, g, (0, 255, 255), thickness=micro_t)
 
-    g = _union(micro_masks)
-    r = _union(capilar_masks)
-    if g.any():
-        out[g > 0] = (
-            (1.0 - alpha) * out[g > 0] + alpha * np.array([40, 200, 40], dtype=np.float32)
-        ).astype(np.uint8)
-    if r.any():
-        out[r > 0] = (
-            (1.0 - alpha) * out[r > 0] + alpha * np.array([40, 40, 220], dtype=np.float32)
-        ).astype(np.uint8)
-    both = np.logical_and(g > 0, r > 0)
-    if both.any():
-        out[both] = (
-            (1.0 - alpha) * out[both] + alpha * np.array([40, 200, 220], dtype=np.float32)
-        ).astype(np.uint8)
+    _blend(out, r, (255, 255, 0), capilar_alpha)  # BGR pure cyan
+    _draw_contours(out, r, (0, 255, 255), thickness=cap_t)
     return out
 
 
-def save_side_by_side(bgr: np.ndarray, overlay: np.ndarray, path: Path, max_w: int = 1600) -> None:
+def save_side_by_side(bgr: np.ndarray, overlay: np.ndarray, path: Path, max_w: int = 2400) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     vis = np.hstack([bgr, overlay])
     if vis.shape[1] > max_w:

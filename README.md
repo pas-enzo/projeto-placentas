@@ -46,6 +46,14 @@ Flags úteis: `--mode micro|capilar|both`, `--micro-conf`, `--capilar-conf`, `--
 
 Saídas em `--output`: `results.csv`, `summary.json`, `overlays/*_overlay.jpg` (original | máscaras: micro=verde vivo+contorno amarelo, capilar=ciano+contorno amarelo).
 
+### GUI (Gradio)
+
+```bash
+D:\miniconda3\envs\PROJETO_PLACENTAS\python.exe -m pipeline.app_gradio
+```
+
+Abre em [http://127.0.0.1:7860](http://127.0.0.1:7860): upload FOV → mode (`both`/`micro`/`capilar`) → overlay + métricas. Os pesos carregam na primeira inferência do mode escolhido.
+
 ## Scripts
 
 ```text

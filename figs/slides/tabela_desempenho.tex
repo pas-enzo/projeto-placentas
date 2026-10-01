@@ -1,0 +1,31 @@
+\documentclass[border=12pt]{standalone}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[brazil]{babel}
+\usepackage{lmodern}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage[table]{xcolor}
+
+\definecolor{micro}{RGB}{0,170,0}
+\definecolor{cap}{RGB}{0,160,190}
+\definecolor{zebra}{RGB}{245,245,245}
+\definecolor{diag}{RGB}{120,120,120}
+
+\renewcommand{\arraystretch}{1.4}
+\setlength{\tabcolsep}{4pt}
+
+\begin{document}
+\begin{tabular}{l l c c c c c c c c}
+\toprule
+\textbf{Estrutura} & \textbf{Unidade} & $c^{*}$ & \textbf{P} & \textbf{R} & \textbf{F1} & \textbf{IoU} & \textbf{Erro área} & \textbf{Anot.} & \textbf{Prev.} \\
+\midrule
+\rowcolor{zebra}
+\textbf{\color{micro}Microcotilédones} & Campo & 0,44 & 0,893 & 0,910 & \textbf{0,901} & 0,905 & $-0{,}70\%$ & 852 & 868 \\
+\textbf{\color{cap}Capilares} & Campo + SAHI & 0,33 & 0,770 & 0,660 & \textbf{0,711} & 0,783 & $+0{,}45\%$ & 5.164 & 4.421 \\
+\rowcolor{zebra}
+{\color{diag}\textit{Capilares}} & {\color{diag}\textit{Tile}} & {\color{diag}0,33} & {\color{diag}0,773} & {\color{diag}0,684} & {\color{diag}0,726} & {\color{diag}0,795} & {\color{diag}$-1{,}91\%$} & {\color{diag}---} & {\color{diag}---} \\
+\bottomrule
+\multicolumn{10}{p{14.5cm}}{\footnotesize 27 campos de validação (243 tiles). P = precisão; R = revocação; IoU = IoU médio dos pares (IoU $\geq$ 0,5); Erro área = área total prevista vs.\ anotada. Linha em cinza: avaliação por tile, sem fusão (diagnóstico).} \\
+\end{tabular}
+\end{document}

@@ -1,0 +1,31 @@
+\documentclass[border=12pt]{standalone}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[brazil]{babel}
+\usepackage{lmodern}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage[table]{xcolor}
+
+\definecolor{micro}{RGB}{0,170,0}
+\definecolor{cap}{RGB}{0,160,190}
+\definecolor{zebra}{RGB}{245,245,245}
+
+\renewcommand{\arraystretch}{1.5}
+\setlength{\tabcolsep}{8pt}
+
+\begin{document}
+\begin{tabular}{l c c c}
+\toprule
+\textbf{Estrutura} & \textbf{Manual por imagem} & \textbf{Automático por imagem} & \textbf{Redução} \\
+\midrule
+\rowcolor{zebra}
+\textbf{\color{micro}Microcotilédones} & 4,8 $\pm$ 2,7 min & 0,04 s & $\sim$7.000$\times$ \\
+\textbf{\color{cap}Capilares} & 34,9 $\pm$ 26,1 min & $\approx$ 0,5 s$^{*}$ & $\sim$4.000$\times$ \\
+\midrule
+\rowcolor{zebra}
+\textbf{180 imagens (ambas)} & $\approx$ 119 h & $<$ 2 min & \\
+\bottomrule
+\multicolumn{4}{p{13.2cm}}{\footnotesize Manual: média $\pm$ DP do tempo de anotação no Roboflow (capilares: 4 anotadores; microcotilédones: 3 anotadores). Automático: apenas inferência em GPU (RF-DETR Seg Large, RTX 5060 Ti; YOLO11s-seg, GTX 1650 SUPER). $^{*}$Estimado: 16 janelas SAHI $\times$ 32,6 ms.} \\
+\end{tabular}
+\end{document}

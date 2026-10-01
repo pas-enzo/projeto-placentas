@@ -27,7 +27,9 @@ def crop_scale_bar(img_bgr: np.ndarray) -> np.ndarray:
     return img_bgr[h - 140 : h, w - 260 : w].copy()
 
 
-def annotate_bar(crop_bgr: np.ndarray) -> np.ndarray:
+def annotate_bar(
+    crop_bgr: np.ndarray, note: str | None = "640\u00d7640 Roboflow export (horizontal axis)"
+) -> np.ndarray:
     """Upscale crop and overlay a 72-px measurement callout on the black bar."""
     # Upscale for print clarity
     scale = 4
@@ -112,13 +114,12 @@ def annotate_bar(crop_bgr: np.ndarray) -> np.ndarray:
     )
     draw.text((tx, ty), label, fill=color, font=font)
 
-    # small footer note
-    note = "640\u00d7640 Roboflow export (horizontal axis)"
-    nb = draw.textbbox((0, 0), note, font=font_sm)
-    nw, nh = nb[2] - nb[0], nb[3] - nb[1]
-    nx, ny = 12, 12
-    draw.rectangle([nx - 6, ny - 4, nx + nw + 6, ny + nh + 4], fill=WHITE)
-    draw.text((nx, ny), note, fill=(40, 40, 40), font=font_sm)
+    if note:
+        nb = draw.textbbox((0, 0), note, font=font_sm)
+        nw, nh = nb[2] - nb[0], nb[3] - nb[1]
+        nx, ny = 12, 12
+        draw.rectangle([nx - 6, ny - 4, nx + nw + 6, ny + nh + 4], fill=WHITE)
+        draw.text((nx, ny), note, fill=(40, 40, 40), font=font_sm)
 
     return cv2.cvtColor(np.array(im), cv2.COLOR_RGB2BGR)
 
@@ -130,9 +131,13 @@ def render_equation_panel(
     subtitle: str,
     width_px: int = 900,
     height_px: int = 520,
+    full_bleed: bool = False,
+    font_scale: float = 1.0,
 ) -> np.ndarray:
     """Render a white card with title + formula using matplotlib mathtext."""
     fig, ax = plt.subplots(figsize=(width_px / 100, height_px / 100), dpi=100)
+    if full_bleed:
+        fig.subplots_adjust(left=0, right=1, bottom=0, top=1)
     fig.patch.set_facecolor("white")
     ax.set_facecolor("white")
     ax.set_xlim(0, 1)
@@ -160,7 +165,7 @@ def render_equation_panel(
         title,
         ha="center",
         va="center",
-        fontsize=18,
+        fontsize=18 * font_scale,
         fontweight="bold",
         fontfamily="Segoe UI",
         color="#141414",
@@ -172,7 +177,7 @@ def render_equation_panel(
         subtitle,
         ha="center",
         va="center",
-        fontsize=12,
+        fontsize=12 * font_scale,
         fontfamily="Segoe UI",
         color="#444444",
         transform=ax.transAxes,
@@ -187,7 +192,7 @@ def render_equation_panel(
             line,
             ha="center",
             va="center",
-            fontsize=15,
+            fontsize=15 * font_scale,
             color="#141414",
             transform=ax.transAxes,
         )
@@ -212,7 +217,7 @@ def render_equation_panel(
         factor,
         ha="center",
         va="center",
-        fontsize=14,
+        fontsize=14 * font_scale,
         fontweight="bold",
         fontfamily="Segoe UI",
         color="#141414",

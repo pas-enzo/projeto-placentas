@@ -1,0 +1,42 @@
+\documentclass[border=12pt]{standalone}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[brazil]{babel}
+\usepackage{lmodern}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage[table]{xcolor}
+
+\definecolor{micro}{RGB}{0,170,0}
+\definecolor{cap}{RGB}{0,160,190}
+\definecolor{zebra}{RGB}{245,245,245}
+
+\renewcommand{\arraystretch}{1.35}
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+
+\begin{document}
+\begin{tabular}{L{4.0cm} L{6.2cm} L{6.2cm}}
+\toprule
+ & \textbf{\color{micro}Microcotilédones} & \textbf{\color{cap}Capilares} \\
+\midrule
+\rowcolor{zebra}
+Modelo & RF-DETR Seg Large & YOLO11s-seg \\
+Paradigma & Transformer (DETR), backbone DINOv2, sem NMS & CNN de estágio único, com NMS \\
+\rowcolor{zebra}
+Pré-treino & Pesos públicos de segmentação & COCO \\
+Unidade de entrada & Campo inteiro $640\times640$ (stretch) & Tiles nativos $1380\times1032$ \\
+\rowcolor{zebra}
+Resolução do modelo & 672 px & 640 px (letterbox) \\
+Inferência no campo & Direta (1 passagem) & SAHI: $4\times4$ janelas, overlap 0,2, GREEDYNMM \\
+\rowcolor{zebra}
+Otimizador & AdamW, lr $1\times10^{-4}$ & AdamW, lr $1{,}67\times10^{-3}$ \\
+Batch & 16 (efetivo, acumulação) & 1 \\
+\rowcolor{zebra}
+Épocas (melhor) & 29 (9) --- early stopping & 60 (55) --- estágio final \\
+Precisão numérica & AMP bfloat16 & FP32 \\
+\rowcolor{zebra}
+GPU & RTX 5060 Ti 16 GB & GTX 1650 SUPER 4 GB \\
+Limiar calibrado $c^{*}$ & 0,44 & 0,33 \\
+\bottomrule
+\end{tabular}
+\end{document}

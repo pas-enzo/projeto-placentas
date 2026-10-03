@@ -29,6 +29,10 @@ Notebooks soltos da raiz (`yolo_11_aug`, `yolo_model`, `test_packages`).
 
 Pesos `.pt` baixados / base (gitignored). Exemplos: `yolo11s-seg.pt`, `yolo26s-seg.pt`, `rf-detr-seg-large.pt`, YOLOv8\*.
 
+## Pesos em uso pelo pipeline (não apagar)
+
+- `experiments/v2_yolo_early/runs/segment/placentas_v11_aug_v2/weights/best.pt` — YOLO11s-seg microcotiledone (`python -m pipeline --micro yolo`, conf 0.46). Gitignored; restaurado do commit `83f954b` (`placentas_v11_aug_v22/weights/best.pt`, renomeado para `_v2` em `cd09f09`).
+
 ## Campeões atuais (fora deste archive)
 
 - Microcotiledone: `v2_rfdetr_seg_large_opt_v1/`

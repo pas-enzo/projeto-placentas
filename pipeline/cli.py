@@ -5,6 +5,7 @@ import json
 from pathlib import Path
 
 from .config import PipelineConfig
+from .micro import MICRO_BACKENDS
 from .run import run_pipeline, summarize
 
 
@@ -12,7 +13,7 @@ def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(
         prog="pipeline",
         description=(
-            "Equine placental histomorphometry: microcotyledon (RF-DETR) "
+            "Equine placental histomorphometry: microcotyledon (RF-DETR or YOLO11s-seg) "
             "+ capillary (YOLO11s-seg / SAHI)."
         ),
     )
@@ -36,9 +37,25 @@ def build_parser() -> argparse.ArgumentParser:
         default="both",
         help="Which head(s) to run (default: both).",
     )
-    p.add_argument("--micro-conf", type=float, default=None, help="Override micro conf* (default 0.44).")
+    p.add_argument(
+        "--micro",
+        choices=MICRO_BACKENDS,
+        default=None,
+        help="Override PipelineConfig.micro_backend (rfdetr | yolo).",
+    )
+    p.add_argument(
+        "--micro-conf",
+        type=float,
+        default=None,
+        help="Override micro conf* (default 0.44 rfdetr / 0.46 yolo).",
+    )
     p.add_argument("--capilar-conf", type=float, default=None, help="Override capilar conf* (default 0.33).")
-    p.add_argument("--micro-ckpt", type=str, default=None, help="Override RF-DETR checkpoint path.")
+    p.add_argument(
+        "--micro-ckpt",
+        type=str,
+        default=None,
+        help="Override checkpoint of the selected --micro backend.",
+    )
     p.add_argument("--capilar-ckpt", type=str, default=None, help="Override YOLO weights path.")
     p.add_argument("--device", type=str, default=None, help="cuda:0 | cpu (auto if omitted).")
     p.add_argument("--no-overlays", action="store_true", help="Skip side-by-side overlays.")
@@ -48,8 +65,13 @@ def build_parser() -> argparse.ArgumentParser:
 def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
     cfg = PipelineConfig()
+    if args.micro:
+        cfg.micro_backend = args.micro
     if args.micro_ckpt:
-        cfg.micro_ckpt = args.micro_ckpt
+        if cfg.micro_backend == "yolo":
+            cfg.micro_yolo_ckpt = args.micro_ckpt
+        else:
+            cfg.micro_ckpt = args.micro_ckpt
     if args.capilar_ckpt:
         cfg.capilar_ckpt = args.capilar_ckpt
 

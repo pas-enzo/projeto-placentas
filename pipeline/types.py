@@ -14,6 +14,7 @@ class InstanceResult:
     area_um2: float
     masks: list[np.ndarray] = field(default_factory=list)
     confidences: list[float] = field(default_factory=list)
+    model_name: str = ""
 
 
 @dataclass
@@ -36,6 +37,7 @@ class ImageResult:
         if self.micro is not None:
             row.update(
                 {
+                    "micro_model": self.micro.model_name,
                     "micro_count": self.micro.count,
                     "micro_area_px": round(self.micro.area_px, 2),
                     "micro_area_um2": round(self.micro.area_um2, 4),

@@ -11,11 +11,11 @@ import numpy as np
 
 from .capilar import CapilarModel
 from .config import PipelineConfig
-from .micro import MicrocotyledonModel
+from .micro import MicrocotyledonModel, MicrocotyledonYOLOModel, load_micro_model
 from .viz import colorize_overlay, masks_square_to_native
 
 _CFG = PipelineConfig()
-_MICRO: MicrocotyledonModel | None = None
+_MICRO: MicrocotyledonModel | MicrocotyledonYOLOModel | None = None
 _CAP: CapilarModel | None = None
 
 _MODE_CHOICES = [
@@ -30,7 +30,7 @@ def _ensure_models(mode: str, device: str | None) -> None:
     global _MICRO, _CAP
     mode = mode.lower()
     if mode in {"micro", "both"} and _MICRO is None:
-        _MICRO = MicrocotyledonModel(_CFG, device=device)
+        _MICRO = load_micro_model(_CFG, device=device)
     if mode in {"capilar", "both"} and _CAP is None:
         _CAP = CapilarModel(_CFG, device=device)
 
@@ -78,7 +78,7 @@ def predict(
             micro.masks, native_w=w, native_h=h, canvas=_CFG.micro_canvas
         )
         lines.append(
-            f"Microcotilédones — contagem: {micro.count} | "
+            f"Microcotilédones ({micro.model_name}) — contagem: {micro.count} | "
             f"área: {micro.area_um2:,.2f} µm² ({micro.area_px:,.0f} px)"
         )
 
@@ -160,7 +160,7 @@ def build_app() -> gr.Blocks:
             f"""
 # Histomorfometria Placentária Equina
 
-Envie um **FOV nativo** para quantificar microcotilédones (RF-DETR) e/ou capilares (YOLO11s-seg + SAHI).
+Envie um **FOV nativo** para quantificar microcotilédones e/ou capilares (YOLO11s-seg + SAHI).
 
 {_legend_html()}
             """.strip()

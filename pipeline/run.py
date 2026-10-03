@@ -6,7 +6,7 @@ from typing import Sequence
 
 from .capilar import CapilarModel
 from .config import PipelineConfig
-from .micro import MicrocotyledonModel
+from .micro import MicrocotyledonModel, MicrocotyledonYOLOModel, load_micro_model
 from .types import ImageResult
 from .viz import colorize_overlay, masks_square_to_native, read_bgr, save_side_by_side
 
@@ -56,10 +56,10 @@ def run_pipeline(
         overlay_dir.mkdir(parents=True, exist_ok=True)
 
     images = collect_images(Path(input_path))
-    micro_model: MicrocotyledonModel | None = None
+    micro_model: MicrocotyledonModel | MicrocotyledonYOLOModel | None = None
     cap_model: CapilarModel | None = None
     if mode in {"micro", "both"}:
-        micro_model = MicrocotyledonModel(cfg, device=device)
+        micro_model = load_micro_model(cfg, device=device)
     if mode in {"capilar", "both"}:
         cap_model = CapilarModel(cfg, device=device)
 
@@ -114,6 +114,7 @@ def summarize(results: Sequence[ImageResult]) -> dict:
     n = len(results)
     out: dict = {"n_images": n}
     if n and results[0].micro is not None:
+        out["micro_model"] = results[0].micro.model_name
         out["micro_count_sum"] = sum(r.micro.count for r in results if r.micro)
         out["micro_area_um2_sum"] = round(
             sum(r.micro.area_um2 for r in results if r.micro), 4

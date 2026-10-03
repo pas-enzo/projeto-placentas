@@ -81,6 +81,7 @@ class CapilarModel:
             area_um2=area_um2,
             masks=masks,
             confidences=confs,
+            model_name="YOLO11s-seg + SAHI",
         )
 
     def predict_bgr(self, bgr: np.ndarray, conf: float | None = None) -> InstanceResult:

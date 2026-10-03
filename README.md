@@ -31,8 +31,18 @@ Pacote [`pipeline/`](pipeline/) — FOV nativo → contagens + área (µm²) + o
 
 | Head | Modelo | Pré-processamento | conf\* | Área |
 |------|--------|-------------------|-------|------|
-| Microcotiledone | RF-DETR Seg Large (`seg_large_r672_auto`) | stretch não-proporcional → 640×640 | 0.44 | ≈0.3606 µm²/px² (espaço stretch) |
+| Microcotiledone (`micro_backend = "rfdetr"`, padrão) | RF-DETR Seg Large (`seg_large_r672_auto`) | stretch não-proporcional → 640×640 | 0.44 | ≈0.3606 µm²/px² (espaço stretch) |
+| Microcotiledone (`micro_backend = "yolo"`) | YOLO11s-seg (`placentas_v11_aug_v2`) | idem | 0.46 | idem |
+
+O modelo de microcotilédones é escolhido em [`pipeline/config.py`](pipeline/config.py), no campo `micro_backend` (vale para CLI e GUI). `--micro` na CLI sobrescreve pontualmente.
 | Capilar | YOLO11s-seg + SAHI (`capilar_yolo11s_tiled_v4`) | FOV nativo, slice 1380×1032, ov 0.2 | 0.33 | ≈0.0115 µm²/px² (nativo) |
+
+Validação micro (27 campos, mesmo protocolo de matching e S(c) = 0.6·F1 + 0.3·IoU + 0.1·(1 − erro de área)):
+
+| Modelo | conf\* | P | R | F1 | IoU médio | Erro de área | S(c) |
+|--------|-------|---|---|----|-----------|--------------|------|
+| RF-DETR Seg Large | 0.44 | 0.893 | 0.910 | 0.901 | 0.905 | 0.70% | 0.912 |
+| YOLO11s-seg | 0.46 | 0.906 | 0.872 | 0.889 | 0.881 | 0.62% | 0.897 |
 
 ```bash
 # Ambiente conda do projeto (ajuste o path se necessário)
@@ -42,7 +52,7 @@ D:\miniconda3\envs\PROJETO_PLACENTAS\python.exe -m pipeline ^
   --mode both
 ```
 
-Flags úteis: `--mode micro|capilar|both`, `--micro-conf`, `--capilar-conf`, `--no-overlays`, `--device cuda:0|cpu`.
+Flags úteis: `--micro rfdetr|yolo`, `--mode micro|capilar|both`, `--micro-conf`, `--capilar-conf`, `--micro-ckpt`, `--no-overlays`, `--device cuda:0|cpu`. O CSV traz a coluna `micro_model` com o modelo usado.
 
 Saídas em `--output`: `results.csv`, `summary.json`, `overlays/*_overlay.jpg` (original | máscaras: micro=verde vivo+contorno amarelo, capilar=ciano+contorno amarelo).
 
@@ -52,7 +62,7 @@ Saídas em `--output`: `results.csv`, `summary.json`, `overlays/*_overlay.jpg` (
 D:\miniconda3\envs\PROJETO_PLACENTAS\python.exe -m pipeline.app_gradio
 ```
 
-Abre em [http://127.0.0.1:7860](http://127.0.0.1:7860): upload FOV (sem webcam) → tipo de análise → painéis Original | Predição + métricas. Os pesos carregam na primeira inferência do modo escolhido.
+Abre em [http://127.0.0.1:7860](http://127.0.0.1:7860): upload FOV (sem webcam) → tipo de análise → painéis Original | Predição + métricas. Os pesos carregam na primeira inferência do modo escolhido; o modelo de microcotilédones segue `micro_backend` do `config.py`.
 
 ## Scripts
 

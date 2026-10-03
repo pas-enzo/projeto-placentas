@@ -19,13 +19,24 @@ class PipelineConfig:
 
     repo_root: Path = field(default_factory=discover_repo_root)
 
+    # Microcotyledon backend: "rfdetr" (paper champion) | "yolo" (TCC baseline)
+    micro_backend: str = "rfdetr"
+
     # Microcotyledon (RF-DETR Seg Large)
     micro_ckpt: str = (
         "v2_rfdetr_seg_large_opt_v1/artifacts/runs/seg_large_r672_auto/checkpoint_best_total.pth"
     )
     micro_conf: float = 0.44
     micro_resolution: int = 672
-    # Stretch-space area factor (Roboflow 640×640 anisotropic export)
+
+    # Microcotyledon (YOLO11s-seg, same stretch-640 Roboflow export)
+    micro_yolo_ckpt: str = (
+        "archive/experiments/v2_yolo_early/runs/segment/placentas_v11_aug_v2/weights/best.pt"
+    )
+    micro_yolo_conf: float = 0.46
+    micro_yolo_imgsz: int = 640
+
+    # Stretch-space area factor (Roboflow 640×640 anisotropic export); both backends
     micro_area_um2_per_px2: float = (50 / 72) ** 2 * (3096 / 4140)  # ≈ 0.3606
 
     # Capillary (YOLO11s-seg + SAHI on native FOV)
@@ -51,6 +62,10 @@ class PipelineConfig:
     @property
     def micro_ckpt_path(self) -> Path:
         return self.resolve(self.micro_ckpt)
+
+    @property
+    def micro_yolo_ckpt_path(self) -> Path:
+        return self.resolve(self.micro_yolo_ckpt)
 
     @property
     def capilar_ckpt_path(self) -> Path:

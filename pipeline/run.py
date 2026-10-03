@@ -10,6 +10,8 @@ from .micro import MicrocotyledonModel, MicrocotyledonYOLOModel, load_micro_mode
 from .types import ImageResult
 from .viz import colorize_overlay, masks_square_to_native, read_bgr, save_side_by_side
 
+MicroModel = MicrocotyledonModel | MicrocotyledonYOLOModel
+
 IMAGE_EXTS = {".jpg", ".jpeg", ".png", ".tif", ".tiff", ".bmp", ".webp"}
 
 
@@ -27,6 +29,61 @@ def collect_images(input_path: Path) -> list[Path]:
     if not files:
         raise FileNotFoundError(f"No images under {p}")
     return files
+
+
+def analyze_image(
+    img_path: Path,
+    *,
+    cfg: PipelineConfig,
+    micro_model: MicroModel | None = None,
+    cap_model: CapilarModel | None = None,
+    micro_conf: float | None = None,
+    capilar_conf: float | None = None,
+    with_overlay: bool = True,
+):
+    """Run the selected heads on one native FOV.
+
+    Returns (result, bgr, overlay_bgr); overlay_bgr is None when with_overlay=False.
+    """
+    bgr = read_bgr(img_path)
+    h, w = bgr.shape[:2]
+    res = ImageResult(image_path=img_path, width=w, height=h)
+
+    if micro_model is not None:
+        res.micro = micro_model.predict_bgr(bgr, conf=micro_conf)
+    if cap_model is not None:
+        res.capilar = cap_model.predict_path(img_path, conf=capilar_conf)
+
+    overlay = None
+    if with_overlay:
+        micro_native = None
+        if res.micro is not None:
+            # Overlay needs native-resolution masks.
+            micro_native = masks_square_to_native(
+                res.micro.masks, native_w=w, native_h=h, canvas=cfg.micro_canvas
+            )
+        overlay = colorize_overlay(
+            bgr,
+            micro_masks=micro_native,
+            capilar_masks=None if res.capilar is None else res.capilar.masks,
+        )
+    return res, bgr, overlay
+
+
+def write_results_csv(results: Sequence[ImageResult], csv_path: Path) -> None:
+    rows = [r.to_row() for r in results]
+    if not rows:
+        return
+    fieldnames = list(rows[0].keys())
+    # Union keys if modes differ (shouldn't, but safe).
+    for row in rows[1:]:
+        for k in row:
+            if k not in fieldnames:
+                fieldnames.append(k)
+    with csv_path.open("w", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(rows)
 
 
 def run_pipeline(
@@ -56,7 +113,7 @@ def run_pipeline(
         overlay_dir.mkdir(parents=True, exist_ok=True)
 
     images = collect_images(Path(input_path))
-    micro_model: MicrocotyledonModel | MicrocotyledonYOLOModel | None = None
+    micro_model: MicroModel | None = None
     cap_model: CapilarModel | None = None
     if mode in {"micro", "both"}:
         micro_model = load_micro_model(cfg, device=device)
@@ -66,46 +123,24 @@ def run_pipeline(
     results: list[ImageResult] = []
     for i, img_path in enumerate(images, start=1):
         print(f"[{i}/{len(images)}] {img_path.name}", flush=True)
-        bgr = read_bgr(img_path)
-        h, w = bgr.shape[:2]
-        res = ImageResult(image_path=img_path, width=w, height=h)
-
-        micro_native = None
-        if micro_model is not None:
-            res.micro = micro_model.predict_bgr(bgr, conf=micro_conf)
-            # Overlay needs native-resolution masks.
-            micro_native = masks_square_to_native(
-                res.micro.masks, native_w=w, native_h=h, canvas=cfg.micro_canvas
-            )
-
-        if cap_model is not None:
-            res.capilar = cap_model.predict_path(img_path, conf=capilar_conf)
-
-        if save_overlays:
-            overlay = colorize_overlay(
-                bgr,
-                micro_masks=micro_native,
-                capilar_masks=None if res.capilar is None else res.capilar.masks,
-            )
+        res, bgr, overlay = analyze_image(
+            img_path,
+            cfg=cfg,
+            micro_model=micro_model,
+            cap_model=cap_model,
+            micro_conf=micro_conf,
+            capilar_conf=capilar_conf,
+            with_overlay=save_overlays,
+        )
+        if overlay is not None:
             overlay_path = overlay_dir / f"{img_path.stem}_overlay.jpg"
             save_side_by_side(bgr, overlay, overlay_path)
             res.overlay_path = overlay_path
-
+        res.drop_masks()
         results.append(res)
 
     csv_path = out / "results.csv"
-    rows = [r.to_row() for r in results]
-    if rows:
-        fieldnames = list(rows[0].keys())
-        # Union keys if modes differ (shouldn't, but safe).
-        for row in rows[1:]:
-            for k in row:
-                if k not in fieldnames:
-                    fieldnames.append(k)
-        with csv_path.open("w", newline="", encoding="utf-8") as f:
-            writer = csv.DictWriter(f, fieldnames=fieldnames)
-            writer.writeheader()
-            writer.writerows(rows)
+    write_results_csv(results, csv_path)
     print(f"Wrote {csv_path} ({len(results)} images)", flush=True)
     return results
 

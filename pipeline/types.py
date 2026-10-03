@@ -27,6 +27,12 @@ class ImageResult:
     overlay_path: Path | None = None
     extras: dict[str, Any] = field(default_factory=dict)
 
+    def drop_masks(self) -> None:
+        """Release mask arrays (native capillary masks are ~13 MB each)."""
+        for head in (self.micro, self.capilar):
+            if head is not None:
+                head.masks = []
+
     def to_row(self) -> dict[str, Any]:
         row: dict[str, Any] = {
             "image": self.image_path.name,

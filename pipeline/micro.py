@@ -57,14 +57,17 @@ def _stretch_result(
         fixed.append((mm > 0).astype(np.uint8))
         kept.append(c)
 
-    area_px = float(sum(int(m.sum()) for m in fixed))
+    factor = float(cfg.micro_area_um2_per_px2)
+    areas_px = [float(m.sum()) for m in fixed]
+    area_px = float(sum(areas_px))
     return InstanceResult(
         count=len(fixed),
         area_px=area_px,
-        area_um2=area_px * float(cfg.micro_area_um2_per_px2),
+        area_um2=area_px * factor,
         masks=fixed,
         confidences=kept,
         model_name=model_name,
+        areas_um2=[a * factor for a in areas_px],
     )
 
 

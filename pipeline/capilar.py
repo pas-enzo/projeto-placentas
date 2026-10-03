@@ -73,15 +73,17 @@ class CapilarModel:
             verbose=0,
         )
         masks, confs = _masks_from_sahi(result, w, h, cls_keep=int(self.cfg.capilar_cls_id))
-        area_px = float(sum(int(m.sum()) for m in masks))
-        area_um2 = area_px * float(self.cfg.capilar_area_um2_per_px2)
+        factor = float(self.cfg.capilar_area_um2_per_px2)
+        areas_px = [float(m.sum()) for m in masks]
+        area_px = float(sum(areas_px))
         return InstanceResult(
             count=len(masks),
             area_px=area_px,
-            area_um2=area_um2,
+            area_um2=area_px * factor,
             masks=masks,
             confidences=confs,
             model_name="YOLO11s-seg + SAHI",
+            areas_um2=[a * factor for a in areas_px],
         )
 
     def predict_bgr(self, bgr: np.ndarray, conf: float | None = None) -> InstanceResult:

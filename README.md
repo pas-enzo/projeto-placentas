@@ -64,7 +64,7 @@ D:\miniconda3\envs\PROJETO_PLACENTAS\python.exe -m pipeline.app_gradio
 
 Abre em [http://127.0.0.1:7860](http://127.0.0.1:7860). Os pesos carregam na primeira inferência do modo escolhido; o modelo de microcotilédones segue `micro_backend` do `config.py`.
 
-- **Imagem Única:** upload FOV (sem webcam) → tipo de análise → painéis Original | Predição + métricas.
+- **Imagem Única:** upload FOV (sem webcam) → tipo de análise → painéis Original | Predição + métricas. Abaixo, a **Predição interativa**: passar o mouse sobre uma instância destaca o contorno e mostra número, área (µm²) e confiança; roda do mouse dá zoom, arrastar move e duplo clique volta ao enquadramento inteiro.
 - **Lote:** várias FOVs → galeria de overlays, tabela por imagem, resumo e download de `results.csv` + ZIP (CSV + overlays). Cada lote fica salvo em `outputs/app/lote/placentas_lote_<data>_<hora>/`.
 
 O cache do Gradio (uploads e downloads) fica em `outputs/app/gradio_cache/`, fora do C:. As duas pastas são ignoradas pelo git e podem ser apagadas a qualquer momento.

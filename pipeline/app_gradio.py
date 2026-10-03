@@ -19,6 +19,7 @@ import pandas as pd
 
 from .capilar import CapilarModel
 from .config import PipelineConfig
+from .interactive import HOVER_CSS, HOVER_HEAD, interactive_overlay_html
 from .micro import MicrocotyledonModel, MicrocotyledonYOLOModel, load_micro_model
 from .run import analyze_image, write_results_csv
 from .types import ImageResult
@@ -61,7 +62,7 @@ def _to_rgb(bgr: np.ndarray) -> np.ndarray:
 def predict(
     image: np.ndarray | None,
     mode: str,
-) -> tuple[np.ndarray | None, np.ndarray | None, str]:
+) -> tuple[np.ndarray | None, np.ndarray | None, str, str]:
     if image is None:
         raise gr.Error("Envie uma imagem FOV (resolução nativa).")
 
@@ -74,7 +75,9 @@ def predict(
 
     bgr = _bgr_from_upload(image)
     h, w = bgr.shape[:2]
+    micro = None
     micro_native = None
+    cap = None
     mode_label = _MODE_LABEL.get(mode, mode)
     lines: list[str] = [
         f"FOV: {w} × {h} px",
@@ -111,7 +114,10 @@ def predict(
     overlay_bgr = colorize_overlay(
         bgr, micro_masks=micro_native, capilar_masks=cap_masks
     )
-    return _to_rgb(bgr), _to_rgb(overlay_bgr), "\n".join(lines)
+    hover_html = interactive_overlay_html(
+        bgr, micro=micro, capilar=cap, micro_canvas=_CFG.micro_canvas
+    )
+    return _to_rgb(bgr), _to_rgb(overlay_bgr), "\n".join(lines), hover_html
 
 
 def _batch_caption(res: ImageResult) -> str:
@@ -249,6 +255,8 @@ def build_app() -> gr.Blocks:
     with gr.Blocks(
         title="Histomorfometria Placentária Equina",
         theme=theme,
+        css=HOVER_CSS,
+        head=HOVER_HEAD,
     ) as demo:
         # Legend lives in the same Markdown block so left edge matches the title.
         gr.Markdown(
@@ -300,6 +308,8 @@ Envie um **FOV nativo** para quantificar microcotilédones e/ou capilares (YOLO1
                         lines=6,
                         interactive=False,
                     )
+                    gr.Markdown("### Predição interativa")
+                    out_hover = gr.HTML()
 
         with gr.Tab("Lote"):
             with gr.Row(equal_height=False):
@@ -349,16 +359,16 @@ Envie um **FOV nativo** para quantificar microcotilédones e/ou capilares (YOLO1
         btn.click(
             fn=predict,
             inputs=[inp, mode],
-            outputs=[out_orig, out_pred, out_txt],
+            outputs=[out_orig, out_pred, out_txt, out_hover],
         )
 
         def _clear():
-            return None, None, None, ""
+            return None, None, None, "", ""
 
         btn_clear.click(
             fn=_clear,
             inputs=None,
-            outputs=[inp, out_orig, out_pred, out_txt],
+            outputs=[inp, out_orig, out_pred, out_txt, out_hover],
         )
 
         batch_btn.click(

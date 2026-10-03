@@ -15,6 +15,7 @@ class InstanceResult:
     masks: list[np.ndarray] = field(default_factory=list)
     confidences: list[float] = field(default_factory=list)
     model_name: str = ""
+    areas_um2: list[float] = field(default_factory=list)
 
 
 @dataclass

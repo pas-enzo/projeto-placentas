@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import os
 import shutil
-import tempfile
 import time
 from pathlib import Path
 
@@ -18,7 +17,7 @@ import numpy as np
 import pandas as pd
 
 from .capilar import CapilarModel
-from .config import PipelineConfig
+from .config import NATIVE_H, NATIVE_W, PipelineConfig, fov_size_warning
 from .interactive import HOVER_CSS, HOVER_HEAD, interactive_overlay_html
 from .micro import MicrocotyledonModel, MicrocotyledonYOLOModel, load_micro_model
 from .run import analyze_image, write_results_csv
@@ -83,6 +82,10 @@ def predict(
         f"FOV: {w} × {h} px",
         f"Análise: {mode_label}",
     ]
+    fov_warning = fov_size_warning(w, h)
+    if fov_warning:
+        gr.Warning(fov_warning)
+        lines.append(f"AVISO: {fov_warning}")
 
     if mode in {"micro", "both"}:
         assert _MICRO is not None
@@ -98,13 +101,7 @@ def predict(
     cap_masks = None
     if mode in {"capilar", "both"}:
         assert _CAP is not None
-        with tempfile.NamedTemporaryFile(suffix=".jpg", delete=False) as tmp:
-            tmp_path = Path(tmp.name)
-        try:
-            cv2.imwrite(str(tmp_path), bgr)
-            cap = _CAP.predict_path(tmp_path)
-        finally:
-            tmp_path.unlink(missing_ok=True)
+        cap = _CAP.predict_bgr(bgr)
         cap_masks = cap.masks
         lines.append(
             f"Capilares — contagem: {cap.count} | "
@@ -160,9 +157,15 @@ def predict_batch(
     micro_model = _MICRO if mode in {"micro", "both"} else None
     cap_model = _CAP if mode in {"capilar", "both"} else None
 
-    out_dir = _APP_OUT / "lote" / time.strftime("placentas_lote_%Y%m%d_%H%M%S")
+    stamp = time.strftime("placentas_lote_%Y%m%d_%H%M%S")
+    out_dir = _APP_OUT / "lote" / stamp
+    k = 1
+    while out_dir.exists():
+        k += 1
+        out_dir = _APP_OUT / "lote" / f"{stamp}_{k}"
     overlay_dir = out_dir / "overlays"
     overlay_dir.mkdir(parents=True)
+    used_names: set[str] = set()
 
     t0 = time.perf_counter()
     results: list[ImageResult] = []
@@ -172,7 +175,13 @@ def predict_batch(
         res, bgr, overlay = analyze_image(
             img_path, cfg=_CFG, micro_model=micro_model, cap_model=cap_model
         )
-        overlay_path = overlay_dir / f"{img_path.stem}_overlay.jpg"
+        # Same file name in different folders must not overwrite another overlay.
+        name, k = f"{img_path.stem}_overlay", 1
+        while name in used_names:
+            k += 1
+            name = f"{img_path.stem}_{k}_overlay"
+        used_names.add(name)
+        overlay_path = overlay_dir / f"{name}.jpg"
         save_side_by_side(bgr, overlay, overlay_path)
         res.overlay_path = Path("overlays") / overlay_path.name
         res.drop_masks()
@@ -202,6 +211,12 @@ def predict_batch(
         lines.append(
             f"Capilares — total: {count} | área média por campo: {total / n:,.2f} µm²"
         )
+    n_warn = sum(1 for r in results if r.extras.get("warning"))
+    if n_warn:
+        msg = f"{n_warn} imagem(ns) com tamanho diferente de {NATIVE_W}×{NATIVE_H} px: " \
+            "área em µm² pode estar incorreta (coluna 'warning' do CSV)."
+        gr.Warning(msg)
+        lines.append(f"AVISO: {msg}")
     return gallery, _batch_table(results), [str(csv_path), str(zip_path)], "\n".join(lines)
 
 
@@ -263,7 +278,7 @@ def build_app() -> gr.Blocks:
             f"""
 # Histomorfometria Placentária Equina
 
-Envie um **FOV nativo** para quantificar microcotilédones e/ou capilares (YOLO11s-seg + SAHI).
+Envie um **FOV nativo** (4140 × 3096 px) para quantificar microcotilédones e/ou capilares.
 
 {_legend_html()}
             """.strip()

@@ -19,8 +19,8 @@
 
 ### Fatores de área
 
-- Microcotiledone (stretch 640): \(\approx 0.3606\,\mu m^2/px^2\) (anisotropia)
-- Capilar (tile / SAHI nativo): \(\approx 0.0115\,\mu m^2/px^2\) (isotrópico)
+- Microcotiledone (stretch 640): \(\approx 0.3556\,\mu m^2/px^2\) (anisotropia; \((50/469)^2 \cdot 4140/640 \cdot 3096/640\))
+- Capilar (tile / SAHI nativo): \(\approx 0.01137\,\mu m^2/px^2\) (isotrópico; \((50/469)^2\)); barra de 50 µm = 469 px no FOV nativo 4140×3096
 
 ## Arquivados
 

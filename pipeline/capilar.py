@@ -7,24 +7,31 @@ import numpy as np
 import torch
 
 from .config import PipelineConfig
-from .types import InstanceResult
+from .types import CropMasks, InstanceResult
 
 
-def _masks_from_sahi(result, w: int, h: int, cls_keep: int) -> tuple[list[np.ndarray], list[float]]:
-    masks: list[np.ndarray] = []
+def _masks_from_sahi(
+    result, w: int, h: int, cls_keep: int
+) -> tuple[CropMasks, list[float], list[float], int]:
+    """Instance crops, confidences, per-instance areas (px) and union area (px)."""
+    masks = CropMasks((h, w))
     confs: list[float] = []
+    areas_px: list[float] = []
+    union = np.zeros((h, w), dtype=bool)
     for op in result.object_prediction_list:
         if int(op.category.id) != cls_keep:
             continue
         if op.mask is None:
             continue
-        m = op.mask.bool_mask.astype(np.uint8)
+        m = op.mask.bool_mask
         if m.shape[0] != h or m.shape[1] != w:
-            m = cv2.resize(m, (w, h), interpolation=cv2.INTER_NEAREST)
-        masks.append((m > 0).astype(np.uint8))
+            m = cv2.resize(m.astype(np.uint8), (w, h), interpolation=cv2.INTER_NEAREST)
+        areas_px.append(float(masks.append(m)))
+        y0, x0, crop = masks.crop(len(masks) - 1)
+        union[y0 : y0 + crop.shape[0], x0 : x0 + crop.shape[1]] |= crop > 0
         score = getattr(op, "score", None)
         confs.append(float(score.value) if score is not None else 1.0)
-    return masks, confs
+    return masks, confs, areas_px, int(union.sum())
 
 
 class CapilarModel:
@@ -72,25 +79,29 @@ class CapilarModel:
             exclude_classes_by_id=[1],
             verbose=0,
         )
-        masks, confs = _masks_from_sahi(result, w, h, cls_keep=int(self.cfg.capilar_cls_id))
+        masks, confs, areas_px, union_px = _masks_from_sahi(
+            result, w, h, cls_keep=int(self.cfg.capilar_cls_id)
+        )
         factor = float(self.cfg.capilar_area_um2_per_px2)
-        areas_px = [float(m.sum()) for m in masks]
-        area_px = float(sum(areas_px))
         return InstanceResult(
             count=len(masks),
-            area_px=area_px,
-            area_um2=area_px * factor,
+            area_px=float(sum(areas_px)),
+            area_um2=float(sum(areas_px)) * factor,
             masks=masks,
             confidences=confs,
             model_name="YOLO11s-seg + SAHI",
             areas_um2=[a * factor for a in areas_px],
+            area_union_px=float(union_px),
+            area_union_um2=union_px * factor,
         )
 
     def predict_bgr(self, bgr: np.ndarray, conf: float | None = None) -> InstanceResult:
         """Write a temp PNG and run SAHI (API expects a path)."""
         import tempfile
 
-        with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as tmp:
+        with tempfile.NamedTemporaryFile(
+            suffix=".png", delete=False, dir=self.cfg.tmp_dir_path
+        ) as tmp:
             tmp_path = Path(tmp.name)
         try:
             cv2.imwrite(str(tmp_path), bgr)

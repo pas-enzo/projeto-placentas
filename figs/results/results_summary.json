@@ -25,11 +25,11 @@
     },
     "area_totals": {
       "n_fov": 27,
-      "gt_area_um2": 1482185.8229,
-      "ai_area_um2": 1471864.2645999996,
+      "gt_area_um2": 1461714.976280116,
+      "ai_area_um2": 1451535.971655622,
       "area_rel_error_from_totals": 0.0069637410778936835,
-      "implied_area_factor": 0.36064143861348075,
-      "note": "AreaRelErr in sweep uses px totals; totals CSV also stores \u00b5m\u00b2 with project factor (~0.3606)."
+      "implied_area_factor": 0.35566052760489353,
+      "note": "AreaRelErr in sweep uses px totals; totals CSV also stores \u00b5m\u00b2 with project factor (~0.3556)."
     },
     "inference": {
       "model": "RFDETRSegLarge",
@@ -57,7 +57,7 @@
       "mean_iou": 0.7950624685220785,
       "area_rel_error": 0.0190569478426854,
       "weighted_score": 0.7976075034271108,
-      "area_factor_um2_per_px2": 0.011524823461313616,
+      "area_factor_um2_per_px2": 0.011365651183618913,
       "classes": [
         0
       ],
@@ -74,8 +74,8 @@
       "mean_iou": 0.7950624685220785,
       "gt_area_px": 49874251.0,
       "pred_area_px": 48923800.0,
-      "gt_area_um2": 574791.938040244,
-      "pred_area_um2": 563838.158056615,
+      "gt_area_um2": 566853.3399102567,
+      "pred_area_um2": 556050.845377135,
       "area_rel_error": 0.0190569478426854,
       "score": 0.7976075034271108
     },

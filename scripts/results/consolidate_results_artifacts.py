@@ -317,7 +317,7 @@ def main() -> None:
                 "ai_area_um2": ai_um2,
                 "area_rel_error_from_totals": area_rel_from_totals,
                 "implied_area_factor": area_factor_implied,
-                "note": "AreaRelErr in sweep uses px totals; totals CSV also stores µm² with project factor (~0.3606).",
+                "note": "AreaRelErr in sweep uses px totals; totals CSV also stores µm² with project factor (~0.3556).",
             },
             "inference": infer,
             "ms_per_fov_derived": ms_per_fov,
@@ -367,7 +367,7 @@ No models were re-trained. Capillary inference latency was NOT measured in this 
 | conf* = 0.33 | `v3_capilar_yolo11s/artifacts_v4/benchmarks/selected_confidence.json` AND best `score` row of `validation_conf_sweep.csv` |
 | P/R/F1/IoU/AreaRelErr/S(c) | Conf-sweep CSV row at conf=0.33 |
 | n = 243 tiles | `artifacts_v4/reports/capilar_tile_totals_report.csv` |
-| AREA_FACTOR | `selected_confidence.json` → 0.0115248… (= Methods ≈0.0115) |
+| AREA_FACTOR | `selected_confidence.json` → 0.0113657… (= Methods ≈0.01137) |
 | Inference latency | **PENDING** — no `inference_benchmark_*.json` under artifacts_v4 |
 | Overlays | `artifacts_v4/iou_viz/*.png` (tiles) |
 

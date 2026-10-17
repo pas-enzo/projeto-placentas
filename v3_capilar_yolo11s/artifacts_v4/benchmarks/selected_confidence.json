@@ -13,7 +13,7 @@
   "score_formula_note": "Aligned to Methods / RF-DETR microcotyledon criterion. Was 0.5*F1 + 0.3*mean_IoU + 0.2*(1-AreaRelErr). Rescored from existing sweep metrics; no re-inference.",
   "previous_formula": "0.5*F1 + 0.3*mean_IoU + 0.2*(1-AreaRelErr)",
   "previous_best_conf": 0.33,
-  "area_factor_um2_per_px2": 0.011524823461313616,
+  "area_factor_um2_per_px2": 0.011365651183618913,
   "classes": [
     0
   ],

@@ -1,11 +1,12 @@
 from __future__ import annotations
 
 import csv
+import sys
 from pathlib import Path
 from typing import Sequence
 
 from .capilar import CapilarModel
-from .config import PipelineConfig
+from .config import PipelineConfig, fov_size_warning
 from .micro import MicrocotyledonModel, MicrocotyledonYOLOModel, load_micro_model
 from .types import ImageResult
 from .viz import colorize_overlay, masks_square_to_native, read_bgr, save_side_by_side
@@ -48,6 +49,10 @@ def analyze_image(
     bgr = read_bgr(img_path)
     h, w = bgr.shape[:2]
     res = ImageResult(image_path=img_path, width=w, height=h)
+    warning = fov_size_warning(w, h)
+    if warning:
+        res.extras["warning"] = warning
+        print(f"[AVISO] {img_path.name}: {warning}", file=sys.stderr, flush=True)
 
     if micro_model is not None:
         res.micro = micro_model.predict_bgr(bgr, conf=micro_conf)

@@ -46,7 +46,7 @@ def annotate_bar(
 
     # Approximate bar location in the upscaled crop (measured visually on 640 export):
     # In the 140x260 crop of bottom-right, the white label box sits near the BR corner.
-    # On 640 image, bar is inside white box; horizontal black line ~72 px long.
+    # On 640 image, bar is inside white box; horizontal black line ~72 px long (469 px on the native FOV).
     # Crop coords relative to full 640: x in [380,640], y in [500,640]
     # Bar roughly centered in the white box horizontally.
     # We'll detect the black bar automatically.
@@ -276,10 +276,10 @@ def main() -> None:
         subtitle="Anisotropic stretch 640\u00d7640  (full-field)",
         formula_lines=[
             r"$A_{\mu\mathrm{m}^{2}}^{(\mathrm{micro})} ="
-            r" A_{\mathrm{px}}\times\left(\dfrac{50}{72}\right)^{2}"
-            r"\times\left(\dfrac{3096}{4140}\right)$",
+            r" A_{\mathrm{px}}\times\left(\dfrac{50}{469}\right)^{2}"
+            r"\times\dfrac{4140}{640}\times\dfrac{3096}{640}$",
         ],
-        factor="\u2248  0.3606 \u00b5m\u00b2 / px\u00b2",
+        factor="\u2248  0.3556 \u00b5m\u00b2 / px\u00b2",
         width_px=900,
         height_px=420,
     )
@@ -289,10 +289,9 @@ def main() -> None:
         subtitle="Isotropic tile space  (native geometry)",
         formula_lines=[
             r"$A_{\mu\mathrm{m}^{2}}^{(\mathrm{cap})} ="
-            r" A_{\mathrm{px}}\times\left(\dfrac{50}{72}\right)^{2}"
-            r"\times\left(\dfrac{640}{4140}\right)^{2}$",
+            r" A_{\mathrm{px}}\times\left(\dfrac{50}{469}\right)^{2}$",
         ],
-        factor="\u2248  0.0115 \u00b5m\u00b2 / px\u00b2",
+        factor="\u2248  0.01137 \u00b5m\u00b2 / px\u00b2",
         width_px=900,
         height_px=420,
     )

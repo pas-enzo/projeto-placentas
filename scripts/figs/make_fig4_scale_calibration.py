@@ -279,7 +279,7 @@ def main() -> None:
             r" A_{\mathrm{px}}\times\left(\dfrac{50}{469}\right)^{2}"
             r"\times\dfrac{4140}{640}\times\dfrac{3096}{640}$",
         ],
-        factor="\u2248  0.3556 \u00b5m\u00b2 / px\u00b2",
+        factor="\u2248  0.3557 \u00b5m\u00b2 / px\u00b2",
         width_px=900,
         height_px=420,
     )

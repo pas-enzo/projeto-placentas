@@ -68,7 +68,7 @@ class PipelineConfig:
     # One stretched px covers (NATIVE_W/640) x (NATIVE_H/640) native px.
     micro_area_um2_per_px2: float = (
         UM_PER_PX_NATIVE**2 * (NATIVE_W / MICRO_CANVAS) * (NATIVE_H / MICRO_CANVAS)
-    )  # ≈ 0.3556
+    )  # ≈ 0.3557
 
     # Capillary (YOLO11s-seg + SAHI on native FOV)
     capilar_ckpt: str = "v3_capilar_yolo11s/runs/capilar_yolo11s_tiled_v4/weights/best.pt"

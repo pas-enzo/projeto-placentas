@@ -317,7 +317,7 @@ def main() -> None:
                 "ai_area_um2": ai_um2,
                 "area_rel_error_from_totals": area_rel_from_totals,
                 "implied_area_factor": area_factor_implied,
-                "note": "AreaRelErr in sweep uses px totals; totals CSV also stores µm² with project factor (~0.3556).",
+                "note": "AreaRelErr in sweep uses px totals; totals CSV also stores µm² with project factor (~0.3557).",
             },
             "inference": infer,
             "ms_per_fov_derived": ms_per_fov,

@@ -31,7 +31,7 @@ Pacote [`pipeline/`](pipeline/) — FOV nativo → contagens + área (µm²) + o
 
 | Head | Modelo | Pré-processamento | conf\* | Área |
 |------|--------|-------------------|-------|------|
-| Microcotiledone (`micro_backend = "rfdetr"`, padrão) | RF-DETR Seg Large (`seg_large_r672_auto`) | stretch não-proporcional → 640×640 | 0.44 | ≈0.3556 µm²/px² (espaço stretch) |
+| Microcotiledone (`micro_backend = "rfdetr"`, padrão) | RF-DETR Seg Large (`seg_large_r672_auto`) | stretch não-proporcional → 640×640 | 0.44 | ≈0.3557 µm²/px² (espaço stretch) |
 | Microcotiledone (`micro_backend = "yolo"`) | YOLO11s-seg (`placentas_v11_aug_v2`) | idem | 0.46 | idem |
 
 O modelo de microcotilédones é escolhido em [`pipeline/config.py`](pipeline/config.py), no campo `micro_backend` (vale para CLI e GUI). `--micro` na CLI sobrescreve pontualmente.

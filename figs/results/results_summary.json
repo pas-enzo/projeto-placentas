@@ -29,7 +29,7 @@
       "ai_area_um2": 1451535.971655622,
       "area_rel_error_from_totals": 0.0069637410778936835,
       "implied_area_factor": 0.35566052760489353,
-      "note": "AreaRelErr in sweep uses px totals; totals CSV also stores \u00b5m\u00b2 with project factor (~0.3556)."
+      "note": "AreaRelErr in sweep uses px totals; totals CSV also stores \u00b5m\u00b2 with project factor (~0.3557)."
     },
     "inference": {
       "model": "RFDETRSegLarge",

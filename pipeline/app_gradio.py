@@ -18,7 +18,15 @@ import pandas as pd
 
 from .artifacts import new_run_dir, save_image_artifacts, unique_stem, write_run_artifacts
 from .capilar import CapilarModel
-from .config import NATIVE_H, NATIVE_W, PipelineConfig, fov_size_warning
+from .config import (
+    NATIVE_H,
+    NATIVE_W,
+    SCALE_BAR_PX_NATIVE,
+    SCALE_BAR_UM,
+    UM_PER_PX_NATIVE,
+    PipelineConfig,
+    fov_size_warning,
+)
 from .interactive import HOVER_CSS, HOVER_HEAD, interactive_overlay_html
 from .micro import MicrocotyledonModel, MicrocotyledonYOLOModel, load_micro_model
 from .run import analyze_bgr, analyze_image
@@ -231,6 +239,17 @@ def _legend_html() -> str:
 """.strip()
 
 
+def _area_factors_md(cfg: PipelineConfig) -> str:
+    """Short explanation of the area conversion; numbers come straight from the config."""
+    return f"""
+- **Calibração:** a barra de escala de {SCALE_BAR_UM:g} µm mede {SCALE_BAR_PX_NATIVE:g} px no FOV nativo ({NATIVE_W} × {NATIVE_H} px), ou seja, {UM_PER_PX_NATIVE:.4f} µm por pixel.
+- **Capilares** (pixel nativo): {cfg.capilar_area_um2_per_px2:.5f} µm² por px².
+- **Microcotilédones** (imagem esticada para {cfg.micro_canvas} × {cfg.micro_canvas} px, cada pixel cobre {NATIVE_W / cfg.micro_canvas:.2f} × {NATIVE_H / cfg.micro_canvas:.2f} px nativos): {cfg.micro_area_um2_per_px2:.4f} µm² por px².
+- **Área total** = soma das áreas das instâncias; a **união** desconta as sobreposições entre máscaras.
+- Os valores em µm² só valem para FOVs nativos de {NATIVE_W} × {NATIVE_H} px.
+""".strip()
+
+
 def build_app() -> gr.Blocks:
     # Only background + primary accents (replaces default orange).
     theme = gr.themes.Default().set(
@@ -272,6 +291,8 @@ Envie um **FOV nativo** (4140 × 3096 px) para quantificar microcotilédones e/o
 {_legend_html()}
             """.strip()
         )
+        with gr.Accordion("Como a área é calculada?", open=False):
+            gr.Markdown(_area_factors_md(_CFG))
 
         with gr.Tab("Imagem Única"):
             with gr.Row(equal_height=False):

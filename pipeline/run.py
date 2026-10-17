@@ -1,15 +1,22 @@
 from __future__ import annotations
 
-import csv
 import sys
 from pathlib import Path
 from typing import Sequence
 
+from .artifacts import (
+    save_image_artifacts,
+    unique_stem,
+    write_instances_csv,
+    write_results_csv,
+    write_run_artifacts,
+)
 from .capilar import CapilarModel
 from .config import PipelineConfig, fov_size_warning
+from .geometry import compute_geometry
 from .micro import MicrocotyledonModel, MicrocotyledonYOLOModel, load_micro_model
 from .types import ImageResult
-from .viz import colorize_overlay, masks_square_to_native, read_bgr, save_side_by_side
+from .viz import colorize_overlay, masks_square_to_native, read_bgr
 
 MicroModel = MicrocotyledonModel | MicrocotyledonYOLOModel
 
@@ -32,7 +39,8 @@ def collect_images(input_path: Path) -> list[Path]:
     return files
 
 
-def analyze_image(
+def analyze_bgr(
+    bgr,
     img_path: Path,
     *,
     cfg: PipelineConfig,
@@ -41,12 +49,14 @@ def analyze_image(
     micro_conf: float | None = None,
     capilar_conf: float | None = None,
     with_overlay: bool = True,
+    from_path: bool = True,
 ):
-    """Run the selected heads on one native FOV.
+    """Run the selected heads on one native FOV already in memory.
 
-    Returns (result, bgr, overlay_bgr); overlay_bgr is None when with_overlay=False.
+    `from_path`: SAHI reads `img_path` itself (original file); otherwise the array is written
+    to a temp PNG. Returns (result, bgr, overlay_bgr); overlay_bgr is None when
+    with_overlay=False.
     """
-    bgr = read_bgr(img_path)
     h, w = bgr.shape[:2]
     res = ImageResult(image_path=img_path, width=w, height=h)
     warning = fov_size_warning(w, h)
@@ -57,7 +67,11 @@ def analyze_image(
     if micro_model is not None:
         res.micro = micro_model.predict_bgr(bgr, conf=micro_conf)
     if cap_model is not None:
-        res.capilar = cap_model.predict_path(img_path, conf=capilar_conf)
+        if from_path:
+            res.capilar = cap_model.predict_path(img_path, conf=capilar_conf)
+        else:
+            res.capilar = cap_model.predict_bgr(bgr, conf=capilar_conf)
+    compute_geometry(res, cfg)
 
     overlay = None
     if with_overlay:
@@ -75,33 +89,9 @@ def analyze_image(
     return res, bgr, overlay
 
 
-def write_results_csv(results: Sequence[ImageResult], csv_path: Path) -> None:
-    rows = [r.to_row() for r in results]
-    if not rows:
-        return
-    fieldnames = list(rows[0].keys())
-    # Union keys if modes differ (shouldn't, but safe).
-    for row in rows[1:]:
-        for k in row:
-            if k not in fieldnames:
-                fieldnames.append(k)
-    with csv_path.open("w", newline="", encoding="utf-8") as f:
-        writer = csv.DictWriter(f, fieldnames=fieldnames)
-        writer.writeheader()
-        writer.writerows(rows)
-
-
-def write_instances_csv(results: Sequence[ImageResult], csv_path: Path) -> None:
-    """One row per instance; `index` is the same number shown in the hover tooltip (#n)."""
-    with csv_path.open("w", newline="", encoding="utf-8") as f:
-        writer = csv.writer(f)
-        writer.writerow(["image", "head", "index", "area_um2", "confidence"])
-        for r in results:
-            for head, inst in (("micro", r.micro), ("capilar", r.capilar)):
-                if inst is None:
-                    continue
-                for i, (a, c) in enumerate(zip(inst.areas_um2, inst.confidences), start=1):
-                    writer.writerow([r.image_path.name, head, i, round(a, 4), round(c, 4)])
+def analyze_image(img_path: Path, **kwargs):
+    """`analyze_bgr` on an image file (see there for the arguments)."""
+    return analyze_bgr(read_bgr(img_path), img_path, **kwargs)
 
 
 def run_pipeline(
@@ -111,6 +101,7 @@ def run_pipeline(
     mode: str = "both",
     cfg: PipelineConfig | None = None,
     save_overlays: bool = True,
+    save_masks: bool = True,
     micro_conf: float | None = None,
     capilar_conf: float | None = None,
     device: str | None = None,
@@ -118,6 +109,7 @@ def run_pipeline(
     """Run histomorphometry inference on one image or a folder.
 
     mode: "micro" | "capilar" | "both"
+    Writes the run artifacts described in `artifacts.py` to `output_dir`.
     """
     cfg = cfg or PipelineConfig()
     mode = mode.lower().strip()
@@ -126,9 +118,6 @@ def run_pipeline(
 
     out = Path(output_dir).resolve()
     out.mkdir(parents=True, exist_ok=True)
-    overlay_dir = out / "overlays"
-    if save_overlays:
-        overlay_dir.mkdir(parents=True, exist_ok=True)
 
     images = collect_images(Path(input_path))
     micro_model: MicroModel | None = None
@@ -139,6 +128,7 @@ def run_pipeline(
         cap_model = CapilarModel(cfg, device=device)
 
     results: list[ImageResult] = []
+    used_stems: set[str] = set()
     for i, img_path in enumerate(images, start=1):
         print(f"[{i}/{len(images)}] {img_path.name}", flush=True)
         res, bgr, overlay = analyze_image(
@@ -150,17 +140,18 @@ def run_pipeline(
             capilar_conf=capilar_conf,
             with_overlay=save_overlays,
         )
-        if overlay is not None:
-            overlay_path = overlay_dir / f"{img_path.stem}_overlay.jpg"
-            save_side_by_side(bgr, overlay, overlay_path)
-            res.overlay_path = overlay_path
+        save_image_artifacts(
+            res, bgr, overlay, out, unique_stem(img_path.stem, used_stems), cfg,
+            save_overlays=save_overlays, save_masks=save_masks,
+        )
         res.drop_masks()
         results.append(res)
 
-    csv_path = out / "results.csv"
-    write_results_csv(results, csv_path)
-    write_instances_csv(results, out / "instances.csv")
-    print(f"Wrote {csv_path} ({len(results)} images) + instances.csv", flush=True)
+    write_run_artifacts(
+        results, out, cfg, mode=mode,
+        micro_conf=micro_conf, capilar_conf=capilar_conf, device=device,
+    )
+    print(f"Wrote {out} ({len(results)} images)", flush=True)
     return results
 
 

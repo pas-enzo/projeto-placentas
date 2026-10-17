@@ -29,7 +29,7 @@ def build_parser() -> argparse.ArgumentParser:
         "-o",
         required=True,
         type=Path,
-        help="Output directory (results.csv + overlays/).",
+        help="Output directory (CSVs, COCO json, run_info.json, overlays/, masks/).",
     )
     p.add_argument(
         "--mode",
@@ -58,7 +58,8 @@ def build_parser() -> argparse.ArgumentParser:
     )
     p.add_argument("--capilar-ckpt", type=str, default=None, help="Override YOLO weights path.")
     p.add_argument("--device", type=str, default=None, help="cuda:0 | cpu (auto if omitted).")
-    p.add_argument("--no-overlays", action="store_true", help="Skip side-by-side overlays.")
+    p.add_argument("--no-overlays", action="store_true", help="Skip overlay images.")
+    p.add_argument("--no-masks", action="store_true", help="Skip binary mask PNGs.")
     return p
 
 
@@ -81,6 +82,7 @@ def main(argv: list[str] | None = None) -> int:
         mode=args.mode,
         cfg=cfg,
         save_overlays=not args.no_overlays,
+        save_masks=not args.no_masks,
         micro_conf=args.micro_conf,
         capilar_conf=args.capilar_conf,
         device=args.device,

@@ -16,14 +16,14 @@ import gradio as gr
 import numpy as np
 import pandas as pd
 
+from .artifacts import new_run_dir, save_image_artifacts, unique_stem, write_run_artifacts
 from .capilar import CapilarModel
 from .config import NATIVE_H, NATIVE_W, PipelineConfig, fov_size_warning
 from .interactive import HOVER_CSS, HOVER_HEAD, interactive_overlay_html
 from .micro import MicrocotyledonModel, MicrocotyledonYOLOModel, load_micro_model
-from .run import analyze_image, write_instances_csv, write_results_csv
+from .run import analyze_bgr, analyze_image
 from .stats import batch_table, image_table
 from .types import ImageResult
-from .viz import colorize_overlay, masks_square_to_native, save_side_by_side
 
 _CFG = PipelineConfig()
 _MICRO: MicrocotyledonModel | MicrocotyledonYOLOModel | None = None
@@ -59,10 +59,21 @@ def _to_rgb(bgr: np.ndarray) -> np.ndarray:
     return cv2.cvtColor(bgr, cv2.COLOR_BGR2RGB)
 
 
+def _finish_run(results: list[ImageResult], run_dir: Path, mode: str) -> list[str]:
+    """Write the run-level files and zip the folder; same output for both tabs."""
+    paths = write_run_artifacts(results, run_dir, _CFG, mode=mode)
+    zip_path = Path(shutil.make_archive(str(run_dir.parent / run_dir.name), "zip", run_dir))
+    return [str(zip_path), str(paths["results"]), str(paths["instances"]), str(paths["coco"])]
+
+
+def _zip_button(zip_path: str | None) -> gr.DownloadButton:
+    return gr.DownloadButton("Baixar tudo (ZIP)", value=zip_path, interactive=zip_path is not None)
+
+
 def predict(
     image: np.ndarray | None,
     mode: str,
-) -> tuple[np.ndarray | None, np.ndarray | None, str, pd.DataFrame, str]:
+) -> tuple[np.ndarray | None, np.ndarray | None, str, pd.DataFrame, gr.DownloadButton, list[str], str]:
     if image is None:
         raise gr.Error("Envie uma imagem FOV (resolução nativa).")
 
@@ -75,9 +86,6 @@ def predict(
 
     bgr = _bgr_from_upload(image)
     h, w = bgr.shape[:2]
-    micro = None
-    micro_native = None
-    cap = None
     mode_label = _MODE_LABEL.get(mode, mode)
     lines: list[str] = [
         f"FOV: {w} × {h} px",
@@ -88,32 +96,28 @@ def predict(
         gr.Warning(fov_warning)
         lines.append(f"AVISO: {fov_warning}")
 
-    if mode in {"micro", "both"}:
-        assert _MICRO is not None
-        micro = _MICRO.predict_bgr(bgr)
-        micro_native = masks_square_to_native(
-            micro.masks, native_w=w, native_h=h, canvas=_CFG.micro_canvas
-        )
-
-    cap_masks = None
-    if mode in {"capilar", "both"}:
-        assert _CAP is not None
-        cap = _CAP.predict_bgr(bgr)
-        cap_masks = cap.masks
-
-    overlay_bgr = colorize_overlay(
-        bgr, micro_masks=micro_native, capilar_masks=cap_masks
+    run_dir = new_run_dir(_APP_OUT / "unica", "placentas_unica")
+    res, bgr, overlay = analyze_bgr(
+        bgr,
+        Path("imagem_unica.png"),
+        cfg=_CFG,
+        micro_model=_MICRO if mode in {"micro", "both"} else None,
+        cap_model=_CAP if mode in {"capilar", "both"} else None,
+        from_path=False,
     )
     hover_html = interactive_overlay_html(
-        bgr, micro=micro, capilar=cap, micro_canvas=_CFG.micro_canvas
+        bgr, micro=res.micro, capilar=res.capilar, micro_canvas=_CFG.micro_canvas
     )
-    res = ImageResult(image_path=Path("upload"), width=w, height=h, micro=micro, capilar=cap)
+    save_image_artifacts(res, bgr, overlay, run_dir, "imagem_unica", _CFG)
     header, rows = image_table(res, _CFG)
+    downloads = _finish_run([res], run_dir, mode)
     return (
         _to_rgb(bgr),
-        _to_rgb(overlay_bgr),
+        _to_rgb(overlay),
         "\n".join(lines),
         pd.DataFrame(rows, columns=header),
+        _zip_button(downloads[0]),
+        downloads[1:],
         hover_html,
     )
 
@@ -145,7 +149,7 @@ def predict_batch(
     files: list[str] | None,
     mode: str,
     progress: gr.Progress = gr.Progress(),
-) -> tuple[list[tuple[str, str]], pd.DataFrame, pd.DataFrame, list[str], str]:
+) -> tuple[list[tuple[str, str]], pd.DataFrame, pd.DataFrame, gr.DownloadButton, list[str], str]:
     if not files:
         raise gr.Error("Envie uma ou mais imagens FOV (resolução nativa).")
 
@@ -158,14 +162,7 @@ def predict_batch(
     micro_model = _MICRO if mode in {"micro", "both"} else None
     cap_model = _CAP if mode in {"capilar", "both"} else None
 
-    stamp = time.strftime("placentas_lote_%Y%m%d_%H%M%S")
-    out_dir = _APP_OUT / "lote" / stamp
-    k = 1
-    while out_dir.exists():
-        k += 1
-        out_dir = _APP_OUT / "lote" / f"{stamp}_{k}"
-    overlay_dir = out_dir / "overlays"
-    overlay_dir.mkdir(parents=True)
+    out_dir = new_run_dir(_APP_OUT / "lote", "placentas_lote")
     used_names: set[str] = set()
 
     t0 = time.perf_counter()
@@ -176,25 +173,15 @@ def predict_batch(
         res, bgr, overlay = analyze_image(
             img_path, cfg=_CFG, micro_model=micro_model, cap_model=cap_model
         )
-        # Same file name in different folders must not overwrite another overlay.
-        name, k = f"{img_path.stem}_overlay", 1
-        while name in used_names:
-            k += 1
-            name = f"{img_path.stem}_{k}_overlay"
-        used_names.add(name)
-        overlay_path = overlay_dir / f"{name}.jpg"
-        save_side_by_side(bgr, overlay, overlay_path)
-        res.overlay_path = Path("overlays") / overlay_path.name
+        preview = save_image_artifacts(
+            res, bgr, overlay, out_dir, unique_stem(img_path.stem, used_names), _CFG
+        )
         res.drop_masks()
         results.append(res)
-        gallery.append((str(overlay_path), _batch_caption(res)))
+        gallery.append((str(preview), _batch_caption(res)))
     elapsed = time.perf_counter() - t0
 
-    csv_path = out_dir / "results.csv"
-    write_results_csv(results, csv_path)
-    instances_path = out_dir / "instances.csv"
-    write_instances_csv(results, instances_path)
-    zip_path = Path(shutil.make_archive(str(out_dir.parent / out_dir.name), "zip", out_dir))
+    downloads = _finish_run(results, out_dir, mode)
 
     n = len(results)
     lines = [
@@ -216,7 +203,8 @@ def predict_batch(
         gallery,
         pd.DataFrame(rows, columns=header),
         _batch_table(results),
-        [str(csv_path), str(instances_path), str(zip_path)],
+        _zip_button(downloads[0]),
+        downloads[1:],
         "\n".join(lines),
     )
 
@@ -329,6 +317,12 @@ Envie um **FOV nativo** (4140 × 3096 px) para quantificar microcotilédones e/o
                         interactive=False,
                         wrap=True,
                     )
+                    out_zip = gr.DownloadButton("Baixar tudo (ZIP)", variant="primary", interactive=False)
+                    out_download = gr.File(
+                        label="Arquivos individuais (results.csv, instances.csv, annotations.coco.json)",
+                        file_count="multiple",
+                        interactive=False,
+                    )
                     gr.Markdown("### Predição interativa")
                     out_hover = gr.HTML()
 
@@ -376,8 +370,9 @@ Envie um **FOV nativo** (4140 × 3096 px) para quantificar microcotilédones e/o
                         interactive=False,
                         wrap=True,
                     )
+                    batch_zip = gr.DownloadButton("Baixar tudo (ZIP)", variant="primary", interactive=False)
                     batch_download = gr.File(
-                        label="Download (results.csv, instances.csv e ZIP com overlays)",
+                        label="Arquivos individuais (results.csv, instances.csv, annotations.coco.json)",
                         file_count="multiple",
                         interactive=False,
                     )
@@ -385,31 +380,31 @@ Envie um **FOV nativo** (4140 × 3096 px) para quantificar microcotilédones e/o
         btn.click(
             fn=predict,
             inputs=[inp, mode],
-            outputs=[out_orig, out_pred, out_txt, out_table, out_hover],
+            outputs=[out_orig, out_pred, out_txt, out_table, out_zip, out_download, out_hover],
         )
 
         def _clear():
-            return None, None, None, "", None, ""
+            return None, None, None, "", None, _zip_button(None), None, ""
 
         btn_clear.click(
             fn=_clear,
             inputs=None,
-            outputs=[inp, out_orig, out_pred, out_txt, out_table, out_hover],
+            outputs=[inp, out_orig, out_pred, out_txt, out_table, out_zip, out_download, out_hover],
         )
 
         batch_btn.click(
             fn=predict_batch,
             inputs=[batch_files, batch_mode],
-            outputs=[batch_gallery, batch_summary, batch_table, batch_download, batch_txt],
+            outputs=[batch_gallery, batch_summary, batch_table, batch_zip, batch_download, batch_txt],
         )
 
         def _clear_batch():
-            return None, None, None, None, None, ""
+            return None, None, None, None, _zip_button(None), None, ""
 
         batch_clear.click(
             fn=_clear_batch,
             inputs=None,
-            outputs=[batch_files, batch_gallery, batch_summary, batch_table, batch_download, batch_txt],
+            outputs=[batch_files, batch_gallery, batch_summary, batch_table, batch_zip, batch_download, batch_txt],
         )
     return demo
 

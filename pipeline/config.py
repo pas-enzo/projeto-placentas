@@ -77,6 +77,9 @@ class PipelineConfig:
     capilar_slice_w: int = 1380
     capilar_slice_h: int = 1032
     capilar_overlap: float = 0.2
+    capilar_postprocess: str = "GREEDYNMM"
+    capilar_match_metric: str = "IOS"
+    capilar_match_threshold: float = 0.5
     capilar_cls_id: int = 0
     # Native isotropic tile/FOV factor
     capilar_area_um2_per_px2: float = UM_PER_PX_NATIVE**2  # ≈ 0.011365

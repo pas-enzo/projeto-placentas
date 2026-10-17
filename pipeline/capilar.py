@@ -73,9 +73,9 @@ class CapilarModel:
             overlap_height_ratio=float(self.cfg.capilar_overlap),
             overlap_width_ratio=float(self.cfg.capilar_overlap),
             perform_standard_pred=False,
-            postprocess_type="GREEDYNMM",
-            postprocess_match_metric="IOS",
-            postprocess_match_threshold=0.5,
+            postprocess_type=str(self.cfg.capilar_postprocess),
+            postprocess_match_metric=str(self.cfg.capilar_match_metric),
+            postprocess_match_threshold=float(self.cfg.capilar_match_threshold),
             exclude_classes_by_id=[1],
             verbose=0,
         )

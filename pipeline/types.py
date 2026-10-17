@@ -58,6 +58,9 @@ class InstanceResult:
     # per-instance sum used in the paper.
     area_union_px: float = 0.0
     area_union_um2: float = 0.0
+    # Per-instance geometry / polygons in native-FOV px (see geometry.compute_geometry).
+    geometry: list[dict] = field(default_factory=list)
+    polygons: list[list[list[float]]] = field(default_factory=list)
 
 
 @dataclass

@@ -31,11 +31,11 @@ Pacote [`pipeline/`](pipeline/) — FOV nativo → contagens + área (µm²) + o
 
 | Head | Modelo | Pré-processamento | conf\* | Área |
 |------|--------|-------------------|-------|------|
-| Microcotiledone (`micro_backend = "rfdetr"`, padrão) | RF-DETR Seg Large (`seg_large_r672_auto`) | stretch não-proporcional → 640×640 | 0.44 | ≈0.3606 µm²/px² (espaço stretch) |
+| Microcotiledone (`micro_backend = "rfdetr"`, padrão) | RF-DETR Seg Large (`seg_large_r672_auto`) | stretch não-proporcional → 640×640 | 0.44 | ≈0.3556 µm²/px² (espaço stretch) |
 | Microcotiledone (`micro_backend = "yolo"`) | YOLO11s-seg (`placentas_v11_aug_v2`) | idem | 0.46 | idem |
 
 O modelo de microcotilédones é escolhido em [`pipeline/config.py`](pipeline/config.py), no campo `micro_backend` (vale para CLI e GUI). `--micro` na CLI sobrescreve pontualmente.
-| Capilar | YOLO11s-seg + SAHI (`capilar_yolo11s_tiled_v4`) | FOV nativo, slice 1380×1032, ov 0.2 | 0.33 | ≈0.0115 µm²/px² (nativo) |
+| Capilar | YOLO11s-seg + SAHI (`capilar_yolo11s_tiled_v4`) | FOV nativo, slice 1380×1032, ov 0.2 | 0.33 | ≈0.01137 µm²/px² (nativo) |
 
 Validação micro (27 campos, mesmo protocolo de matching e S(c) = 0.6·F1 + 0.3·IoU + 0.1·(1 − erro de área)):
 

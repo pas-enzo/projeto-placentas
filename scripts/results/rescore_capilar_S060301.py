@@ -82,7 +82,7 @@ def main() -> None:
         ),
         "previous_formula": PREV,
         "previous_best_conf": float(old_best["conf"]),
-        "area_factor_um2_per_px2": 0.011524823461313616,
+        "area_factor_um2_per_px2": 0.011365651183618913,
         "classes": [0],
         "notes": "Tile-level Capilar; FOV morphometry via SAHI separately.",
     }

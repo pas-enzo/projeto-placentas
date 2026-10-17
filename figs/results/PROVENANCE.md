@@ -22,7 +22,7 @@ No models were re-trained. Capillary inference latency was NOT measured in this 
 | conf* = 0.33 | `v3_capilar_yolo11s/artifacts_v4/benchmarks/selected_confidence.json` AND best `score` row of `validation_conf_sweep.csv` |
 | P/R/F1/IoU/AreaRelErr/S(c) | Conf-sweep CSV row at conf=0.33 |
 | n = 243 tiles | `artifacts_v4/reports/capilar_tile_totals_report.csv` |
-| AREA_FACTOR | `selected_confidence.json` → 0.0115248… (= Methods ≈0.0115) |
+| AREA_FACTOR | `selected_confidence.json` → 0.0113657… (= Methods ≈0.01137) |
 | Inference latency | **OK** — `artifacts_v4/benchmarks/inference_benchmark_capilar_yolo11s_tiled_v4.json` (GTX 1650 SUPER 4GB; warmup=1, repeats=3; ~32.6 ms/tile) |
 | Overlays | `artifacts_v4/iou_viz/*.png` (tiles) |
 

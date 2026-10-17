@@ -7,7 +7,7 @@
   "mean_iou": 0.7947039100268776,
   "area_rel_error": 0.01877712409154776,
   "weighted_score": 0.8004678672288358,
-  "area_factor_um2_per_px2": 0.011524823461313616,
+  "area_factor_um2_per_px2": 0.011365651183618913,
   "classes": [
     0
   ],

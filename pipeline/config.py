@@ -4,6 +4,15 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 
+# Calibration: the 50 um scale bar burned into every native FOV measures 469 px
+# (constant over all 180 images), so native pixels are isotropic at 50/469 um/px.
+SCALE_BAR_UM = 50.0
+SCALE_BAR_PX_NATIVE = 469.0
+NATIVE_W, NATIVE_H = 4140, 3096
+MICRO_CANVAS = 640
+UM_PER_PX_NATIVE = SCALE_BAR_UM / SCALE_BAR_PX_NATIVE
+
+
 def discover_repo_root(start: Path | None = None) -> Path:
     p = (start or Path.cwd()).resolve()
     while p != p.parent:
@@ -36,8 +45,11 @@ class PipelineConfig:
     micro_yolo_conf: float = 0.46
     micro_yolo_imgsz: int = 640
 
-    # Stretch-space area factor (Roboflow 640×640 anisotropic export); both backends
-    micro_area_um2_per_px2: float = (50 / 72) ** 2 * (3096 / 4140)  # ≈ 0.3606
+    # Stretch-space area factor (Roboflow 640×640 anisotropic export); both backends.
+    # One stretched px covers (NATIVE_W/640) x (NATIVE_H/640) native px.
+    micro_area_um2_per_px2: float = (
+        UM_PER_PX_NATIVE**2 * (NATIVE_W / MICRO_CANVAS) * (NATIVE_H / MICRO_CANVAS)
+    )  # ≈ 0.3556
 
     # Capillary (YOLO11s-seg + SAHI on native FOV)
     capilar_ckpt: str = "v3_capilar_yolo11s/runs/capilar_yolo11s_tiled_v4/weights/best.pt"
@@ -48,10 +60,10 @@ class PipelineConfig:
     capilar_overlap: float = 0.2
     capilar_cls_id: int = 0
     # Native isotropic tile/FOV factor
-    capilar_area_um2_per_px2: float = (50 / 72) ** 2 * (640 / 4140) ** 2  # ≈ 0.0115
+    capilar_area_um2_per_px2: float = UM_PER_PX_NATIVE**2  # ≈ 0.011365
 
     # Preprocess for micro: non-proportional stretch like Roboflow export
-    micro_canvas: int = 640
+    micro_canvas: int = MICRO_CANVAS
 
     def resolve(self, rel: str) -> Path:
         p = Path(rel)

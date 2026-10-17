@@ -27,7 +27,7 @@ Pesos base baixados ficam em `archive/weights_base/` (gitignored).
 Tiles / SAHI em resolução nativa (pixel isotrópico):
 
 ```text
-AREA_FACTOR = (50/72)**2 * (640/4140)**2   # µm² / px²
+AREA_FACTOR = (50/469)**2   # µm² / px² (barra de 50 µm = 469 px no FOV nativo)
 ```
 
 Não use o fator do pipeline 1 (canvas 640 esticado).

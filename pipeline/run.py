@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import sys
 from pathlib import Path
-from typing import Sequence
+from typing import Callable, Sequence
 
 from .artifacts import (
     save_image_artifacts,
@@ -19,6 +19,9 @@ from .types import ImageResult
 from .viz import colorize_overlay, masks_square_to_native, read_bgr
 
 MicroModel = MicrocotyledonModel | MicrocotyledonYOLOModel
+
+# on_progress(stage, done, total): stage is "micro" or "capilar" (capillary progress is per SAHI slice)
+ProgressFn = Callable[[str, int, int], None]
 
 IMAGE_EXTS = {".jpg", ".jpeg", ".png", ".tif", ".tiff", ".bmp", ".webp"}
 
@@ -50,6 +53,7 @@ def analyze_bgr(
     capilar_conf: float | None = None,
     with_overlay: bool = True,
     from_path: bool = True,
+    on_progress: ProgressFn | None = None,
 ):
     """Run the selected heads on one native FOV already in memory.
 
@@ -65,12 +69,19 @@ def analyze_bgr(
         print(f"[AVISO] {img_path.name}: {warning}", file=sys.stderr, flush=True)
 
     if micro_model is not None:
+        if on_progress:
+            on_progress("micro", 0, 1)
         res.micro = micro_model.predict_bgr(bgr, conf=micro_conf)
+        if on_progress:
+            on_progress("micro", 1, 1)
     if cap_model is not None:
+        slice_cb = (lambda done, total: on_progress("capilar", done, total)) if on_progress else None
+        if on_progress:
+            on_progress("capilar", 0, 1)
         if from_path:
-            res.capilar = cap_model.predict_path(img_path, conf=capilar_conf)
+            res.capilar = cap_model.predict_path(img_path, conf=capilar_conf, on_progress=slice_cb)
         else:
-            res.capilar = cap_model.predict_bgr(bgr, conf=capilar_conf)
+            res.capilar = cap_model.predict_bgr(bgr, conf=capilar_conf, on_progress=slice_cb)
     compute_geometry(res, cfg)
 
     overlay = None
@@ -127,6 +138,10 @@ def run_pipeline(
     if mode in {"capilar", "both"}:
         cap_model = CapilarModel(cfg, device=device)
 
+    def _print_progress(stage: str, done: int, total: int) -> None:
+        if stage == "capilar" and total > 1:
+            print(f"\r    Capilares: fatia {done}/{total}", end="\n" if done >= total else "", flush=True)
+
     results: list[ImageResult] = []
     used_stems: set[str] = set()
     for i, img_path in enumerate(images, start=1):
@@ -139,6 +154,7 @@ def run_pipeline(
             micro_conf=micro_conf,
             capilar_conf=capilar_conf,
             with_overlay=save_overlays,
+            on_progress=_print_progress,
         )
         save_image_artifacts(
             res, bgr, overlay, out, unique_stem(img_path.stem, used_stems), cfg,

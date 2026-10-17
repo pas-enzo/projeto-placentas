@@ -67,6 +67,33 @@ def _to_rgb(bgr: np.ndarray) -> np.ndarray:
     return cv2.cvtColor(bgr, cv2.COLOR_BGR2RGB)
 
 
+_STAGE_LABEL = {"micro": "Microcotilédones", "capilar": "Capilares"}
+# Relative cost of each stage on the progress bar (SAHI dominates); the last 0.5 is metrics/files.
+_STAGE_WEIGHT = {"micro": 1.0, "capilar": 6.0}
+_FINISH_WEIGHT = 0.5
+
+
+def _stage_progress(progress: gr.Progress, mode: str, base: float = 0.0, span: float = 1.0, prefix: str = ""):
+    """Map analyze_bgr's (stage, done, total) onto the Gradio bar within [base, base + span].
+
+    Returns (callback, finish) where `finish()` marks the metrics/files stage."""
+    stages = [s for s, modes in (("micro", ("micro", "both")), ("capilar", ("capilar", "both"))) if mode in modes]
+    total_w = sum(_STAGE_WEIGHT[s] for s in stages) + _FINISH_WEIGHT
+
+    def cb(stage: str, done: int, total: int) -> None:
+        before = sum(_STAGE_WEIGHT[s] for s in stages[: stages.index(stage)])
+        frac = (before + _STAGE_WEIGHT[stage] * done / max(total, 1)) / total_w
+        desc = f"{prefix}{_STAGE_LABEL[stage]}"
+        if stage == "capilar" and total > 1:
+            desc += f": fatia {done}/{total}"
+        progress(base + span * frac, desc=desc)
+
+    def finish() -> None:
+        progress(base + span * (1 - _FINISH_WEIGHT / total_w), desc=f"{prefix}Gerando métricas e arquivos…")
+
+    return cb, finish
+
+
 def _finish_run(results: list[ImageResult], run_dir: Path, mode: str) -> list[str]:
     """Write the run-level files and zip the folder; same output for both tabs."""
     paths = write_run_artifacts(results, run_dir, _CFG, mode=mode)
@@ -81,6 +108,7 @@ def _zip_button(zip_path: str | None) -> gr.DownloadButton:
 def predict(
     image: np.ndarray | None,
     mode: str,
+    progress: gr.Progress = gr.Progress(),
 ) -> tuple[np.ndarray | None, np.ndarray | None, str, pd.DataFrame, gr.DownloadButton, list[str], str]:
     if image is None:
         raise gr.Error("Envie uma imagem FOV (resolução nativa).")
@@ -105,6 +133,7 @@ def predict(
         lines.append(f"AVISO: {fov_warning}")
 
     run_dir = new_run_dir(_APP_OUT / "unica", "placentas_unica")
+    on_progress, finish = _stage_progress(progress, mode)
     res, bgr, overlay = analyze_bgr(
         bgr,
         Path("imagem_unica.png"),
@@ -112,7 +141,9 @@ def predict(
         micro_model=_MICRO if mode in {"micro", "both"} else None,
         cap_model=_CAP if mode in {"capilar", "both"} else None,
         from_path=False,
+        on_progress=on_progress,
     )
+    finish()
     hover_html = interactive_overlay_html(
         bgr, micro=res.micro, capilar=res.capilar, micro_canvas=_CFG.micro_canvas
     )
@@ -176,11 +207,17 @@ def predict_batch(
     t0 = time.perf_counter()
     results: list[ImageResult] = []
     gallery: list[tuple[str, str]] = []
-    for f in progress.tqdm(files, desc="Processando imagens"):
+    for i, f in enumerate(files):
         img_path = Path(f)
-        res, bgr, overlay = analyze_image(
-            img_path, cfg=_CFG, micro_model=micro_model, cap_model=cap_model
+        on_progress, finish = _stage_progress(
+            progress, mode, base=i / len(files), span=1 / len(files),
+            prefix=f"Imagem {i + 1}/{len(files)} · ",
         )
+        res, bgr, overlay = analyze_image(
+            img_path, cfg=_CFG, micro_model=micro_model, cap_model=cap_model,
+            on_progress=on_progress,
+        )
+        finish()
         preview = save_image_artifacts(
             res, bgr, overlay, out_dir, unique_stem(img_path.stem, used_names), _CFG
         )

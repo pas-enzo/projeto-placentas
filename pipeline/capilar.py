@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Callable
 
 import cv2
 import numpy as np
@@ -55,7 +56,13 @@ class CapilarModel:
             task="segment",
         )
 
-    def predict_path(self, path: Path, conf: float | None = None) -> InstanceResult:
+    def predict_path(
+        self,
+        path: Path,
+        conf: float | None = None,
+        on_progress: Callable[[int, int], None] | None = None,
+    ) -> InstanceResult:
+        """`on_progress(slices_done, slices_total)` is called by SAHI after each slice."""
         from sahi.predict import get_sliced_prediction
 
         from .viz import read_bgr
@@ -78,6 +85,7 @@ class CapilarModel:
             postprocess_match_threshold=float(self.cfg.capilar_match_threshold),
             exclude_classes_by_id=[1],
             verbose=0,
+            progress_callback=on_progress,
         )
         masks, confs, areas_px, union_px = _masks_from_sahi(
             result, w, h, cls_keep=int(self.cfg.capilar_cls_id)
@@ -95,7 +103,12 @@ class CapilarModel:
             area_union_um2=union_px * factor,
         )
 
-    def predict_bgr(self, bgr: np.ndarray, conf: float | None = None) -> InstanceResult:
+    def predict_bgr(
+        self,
+        bgr: np.ndarray,
+        conf: float | None = None,
+        on_progress: Callable[[int, int], None] | None = None,
+    ) -> InstanceResult:
         """Write a temp PNG and run SAHI (API expects a path)."""
         import tempfile
 
@@ -105,6 +118,6 @@ class CapilarModel:
             tmp_path = Path(tmp.name)
         try:
             cv2.imwrite(str(tmp_path), bgr)
-            return self.predict_path(tmp_path, conf=conf)
+            return self.predict_path(tmp_path, conf=conf, on_progress=on_progress)
         finally:
             tmp_path.unlink(missing_ok=True)

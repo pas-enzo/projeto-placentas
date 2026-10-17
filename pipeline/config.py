@@ -13,12 +13,31 @@ MICRO_CANVAS = 640
 UM_PER_PX_NATIVE = SCALE_BAR_UM / SCALE_BAR_PX_NATIVE
 
 
+def fov_size_warning(width: int, height: int) -> str | None:
+    """Area factors are calibrated for native FOVs only; warn on any other size."""
+    if (width, height) == (NATIVE_W, NATIVE_H):
+        return None
+    return (
+        f"FOV {width}×{height} px diferente do nativo ({NATIVE_W}×{NATIVE_H} px): os fatores de área "
+        "(µm²) são calibrados para o FOV nativo e podem estar incorretos."
+    )
+
+
+def _is_repo_root(p: Path) -> bool:
+    return (p / ".git").exists() and (p / "v3_capilar_yolo11s").exists()
+
+
 def discover_repo_root(start: Path | None = None) -> Path:
-    p = (start or Path.cwd()).resolve()
-    while p != p.parent:
-        if (p / ".git").exists() and (p / "v3_capilar_yolo11s").exists():
-            return p
-        p = p.parent
+    # Prefer the package location so the repo is found regardless of the working directory.
+    starts = [Path(start)] if start else [Path(__file__).resolve().parent, Path.cwd()]
+    for s in starts:
+        p = s.resolve()
+        while True:
+            if _is_repo_root(p):
+                return p
+            if p == p.parent:
+                break
+            p = p.parent
     raise RuntimeError("Repo root not found (.git + v3_capilar_yolo11s)")
 
 
@@ -65,11 +84,20 @@ class PipelineConfig:
     # Preprocess for micro: non-proportional stretch like Roboflow export
     micro_canvas: int = MICRO_CANVAS
 
+    # Scratch files for model APIs that only take a path (kept off C:, which is nearly full)
+    tmp_dir: str = "outputs/tmp"
+
     def resolve(self, rel: str) -> Path:
         p = Path(rel)
         if p.is_file():
             return p.resolve()
         return (self.repo_root / rel).resolve()
+
+    @property
+    def tmp_dir_path(self) -> Path:
+        p = self.resolve(self.tmp_dir)
+        p.mkdir(parents=True, exist_ok=True)
+        return p
 
     @property
     def micro_ckpt_path(self) -> Path:

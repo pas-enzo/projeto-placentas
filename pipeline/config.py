@@ -47,8 +47,8 @@ class PipelineConfig:
 
     repo_root: Path = field(default_factory=discover_repo_root)
 
-    # Microcotyledon backend: "rfdetr" (paper champion) | "yolo" (TCC baseline)
-    micro_backend: str = "rfdetr"
+    # Microcotyledon backend: "yolo" (TCC: YOLO family only) | "rfdetr" (paper champion)
+    micro_backend: str = "yolo"
 
     # Microcotyledon (RF-DETR Seg Large)
     micro_ckpt: str = (

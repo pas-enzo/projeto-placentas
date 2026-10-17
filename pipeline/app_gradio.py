@@ -20,7 +20,8 @@ from .capilar import CapilarModel
 from .config import NATIVE_H, NATIVE_W, PipelineConfig, fov_size_warning
 from .interactive import HOVER_CSS, HOVER_HEAD, interactive_overlay_html
 from .micro import MicrocotyledonModel, MicrocotyledonYOLOModel, load_micro_model
-from .run import analyze_image, write_results_csv
+from .run import analyze_image, write_instances_csv, write_results_csv
+from .stats import batch_table, image_table
 from .types import ImageResult
 from .viz import colorize_overlay, masks_square_to_native, save_side_by_side
 
@@ -61,7 +62,7 @@ def _to_rgb(bgr: np.ndarray) -> np.ndarray:
 def predict(
     image: np.ndarray | None,
     mode: str,
-) -> tuple[np.ndarray | None, np.ndarray | None, str, str]:
+) -> tuple[np.ndarray | None, np.ndarray | None, str, pd.DataFrame, str]:
     if image is None:
         raise gr.Error("Envie uma imagem FOV (resolução nativa).")
 
@@ -93,20 +94,12 @@ def predict(
         micro_native = masks_square_to_native(
             micro.masks, native_w=w, native_h=h, canvas=_CFG.micro_canvas
         )
-        lines.append(
-            f"Microcotilédones ({micro.model_name}) — contagem: {micro.count} | "
-            f"área: {micro.area_um2:,.2f} µm² ({micro.area_px:,.0f} px)"
-        )
 
     cap_masks = None
     if mode in {"capilar", "both"}:
         assert _CAP is not None
         cap = _CAP.predict_bgr(bgr)
         cap_masks = cap.masks
-        lines.append(
-            f"Capilares — contagem: {cap.count} | "
-            f"área: {cap.area_um2:,.2f} µm² ({cap.area_px:,.0f} px)"
-        )
 
     overlay_bgr = colorize_overlay(
         bgr, micro_masks=micro_native, capilar_masks=cap_masks
@@ -114,7 +107,15 @@ def predict(
     hover_html = interactive_overlay_html(
         bgr, micro=micro, capilar=cap, micro_canvas=_CFG.micro_canvas
     )
-    return _to_rgb(bgr), _to_rgb(overlay_bgr), "\n".join(lines), hover_html
+    res = ImageResult(image_path=Path("upload"), width=w, height=h, micro=micro, capilar=cap)
+    header, rows = image_table(res, _CFG)
+    return (
+        _to_rgb(bgr),
+        _to_rgb(overlay_bgr),
+        "\n".join(lines),
+        pd.DataFrame(rows, columns=header),
+        hover_html,
+    )
 
 
 def _batch_caption(res: ImageResult) -> str:
@@ -144,7 +145,7 @@ def predict_batch(
     files: list[str] | None,
     mode: str,
     progress: gr.Progress = gr.Progress(),
-) -> tuple[list[tuple[str, str]], pd.DataFrame, list[str], str]:
+) -> tuple[list[tuple[str, str]], pd.DataFrame, pd.DataFrame, list[str], str]:
     if not files:
         raise gr.Error("Envie uma ou mais imagens FOV (resolução nativa).")
 
@@ -191,6 +192,8 @@ def predict_batch(
 
     csv_path = out_dir / "results.csv"
     write_results_csv(results, csv_path)
+    instances_path = out_dir / "instances.csv"
+    write_instances_csv(results, instances_path)
     zip_path = Path(shutil.make_archive(str(out_dir.parent / out_dir.name), "zip", out_dir))
 
     n = len(results)
@@ -198,26 +201,24 @@ def predict_batch(
         f"Imagens: {n} | Análise: {_MODE_LABEL.get(mode, mode)} | "
         f"Tempo: {elapsed:.1f} s ({elapsed / n:.1f} s/imagem)",
     ]
-    if micro_model is not None:
-        total = sum(r.micro.area_um2 for r in results if r.micro)
-        count = sum(r.micro.count for r in results if r.micro)
-        lines.append(
-            f"Microcotilédones ({results[0].micro.model_name}) — total: {count} | "
-            f"área média por campo: {total / n:,.2f} µm²"
-        )
-    if cap_model is not None:
-        total = sum(r.capilar.area_um2 for r in results if r.capilar)
-        count = sum(r.capilar.count for r in results if r.capilar)
-        lines.append(
-            f"Capilares — total: {count} | área média por campo: {total / n:,.2f} µm²"
-        )
+    lines.append(
+        "Métricas do lote: contagem, áreas, sobreposição e ocupação = média ± dp por campo; "
+        "estatísticas por instância = todas as instâncias do lote."
+    )
     n_warn = sum(1 for r in results if r.extras.get("warning"))
     if n_warn:
         msg = f"{n_warn} imagem(ns) com tamanho diferente de {NATIVE_W}×{NATIVE_H} px: " \
             "área em µm² pode estar incorreta (coluna 'warning' do CSV)."
         gr.Warning(msg)
         lines.append(f"AVISO: {msg}")
-    return gallery, _batch_table(results), [str(csv_path), str(zip_path)], "\n".join(lines)
+    header, rows = batch_table(results, _CFG)
+    return (
+        gallery,
+        pd.DataFrame(rows, columns=header),
+        _batch_table(results),
+        [str(csv_path), str(instances_path), str(zip_path)],
+        "\n".join(lines),
+    )
 
 
 def _legend_html() -> str:
@@ -319,9 +320,14 @@ Envie um **FOV nativo** (4140 × 3096 px) para quantificar microcotilédones e/o
                             height=360,
                         )
                     out_txt = gr.Textbox(
-                        label="Métricas",
-                        lines=6,
+                        label="Informações",
+                        lines=3,
                         interactive=False,
+                    )
+                    out_table = gr.Dataframe(
+                        label="Métricas",
+                        interactive=False,
+                        wrap=True,
                     )
                     gr.Markdown("### Predição interativa")
                     out_hover = gr.HTML()
@@ -356,9 +362,14 @@ Envie um **FOV nativo** (4140 × 3096 px) para quantificar microcotilédones e/o
                         interactive=False,
                     )
                     batch_txt = gr.Textbox(
-                        label="Resumo",
+                        label="Informações",
                         lines=3,
                         interactive=False,
+                    )
+                    batch_summary = gr.Dataframe(
+                        label="Métricas do lote",
+                        interactive=False,
+                        wrap=True,
                     )
                     batch_table = gr.Dataframe(
                         label="Métricas por imagem",
@@ -366,7 +377,7 @@ Envie um **FOV nativo** (4140 × 3096 px) para quantificar microcotilédones e/o
                         wrap=True,
                     )
                     batch_download = gr.File(
-                        label="Download (results.csv + ZIP com overlays)",
+                        label="Download (results.csv, instances.csv e ZIP com overlays)",
                         file_count="multiple",
                         interactive=False,
                     )
@@ -374,31 +385,31 @@ Envie um **FOV nativo** (4140 × 3096 px) para quantificar microcotilédones e/o
         btn.click(
             fn=predict,
             inputs=[inp, mode],
-            outputs=[out_orig, out_pred, out_txt, out_hover],
+            outputs=[out_orig, out_pred, out_txt, out_table, out_hover],
         )
 
         def _clear():
-            return None, None, None, "", ""
+            return None, None, None, "", None, ""
 
         btn_clear.click(
             fn=_clear,
             inputs=None,
-            outputs=[inp, out_orig, out_pred, out_txt, out_hover],
+            outputs=[inp, out_orig, out_pred, out_txt, out_table, out_hover],
         )
 
         batch_btn.click(
             fn=predict_batch,
             inputs=[batch_files, batch_mode],
-            outputs=[batch_gallery, batch_table, batch_download, batch_txt],
+            outputs=[batch_gallery, batch_summary, batch_table, batch_download, batch_txt],
         )
 
         def _clear_batch():
-            return None, None, None, None, ""
+            return None, None, None, None, None, ""
 
         batch_clear.click(
             fn=_clear_batch,
             inputs=None,
-            outputs=[batch_files, batch_gallery, batch_table, batch_download, batch_txt],
+            outputs=[batch_files, batch_gallery, batch_summary, batch_table, batch_download, batch_txt],
         )
     return demo
 

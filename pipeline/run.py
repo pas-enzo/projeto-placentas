@@ -91,6 +91,19 @@ def write_results_csv(results: Sequence[ImageResult], csv_path: Path) -> None:
         writer.writerows(rows)
 
 
+def write_instances_csv(results: Sequence[ImageResult], csv_path: Path) -> None:
+    """One row per instance; `index` is the same number shown in the hover tooltip (#n)."""
+    with csv_path.open("w", newline="", encoding="utf-8") as f:
+        writer = csv.writer(f)
+        writer.writerow(["image", "head", "index", "area_um2", "confidence"])
+        for r in results:
+            for head, inst in (("micro", r.micro), ("capilar", r.capilar)):
+                if inst is None:
+                    continue
+                for i, (a, c) in enumerate(zip(inst.areas_um2, inst.confidences), start=1):
+                    writer.writerow([r.image_path.name, head, i, round(a, 4), round(c, 4)])
+
+
 def run_pipeline(
     input_path: Path | str,
     output_dir: Path | str,
@@ -146,7 +159,8 @@ def run_pipeline(
 
     csv_path = out / "results.csv"
     write_results_csv(results, csv_path)
-    print(f"Wrote {csv_path} ({len(results)} images)", flush=True)
+    write_instances_csv(results, out / "instances.csv")
+    print(f"Wrote {csv_path} ({len(results)} images) + instances.csv", flush=True)
     return results
 
 

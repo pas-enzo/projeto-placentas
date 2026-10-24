@@ -1,0 +1,374 @@
+{
+ "version": 1,
+ "description": "Divisão por égua (sem vazamento entre animais). Papéis por rodízio 4/1/1.",
+ "source": "D:\\projeto_placentas_clayton\\datasat_v3.1_yolo11_og_size",
+ "created": "2026-10-24T13:27:13",
+ "order": [
+  "ZAZA",
+  "TOSTADA",
+  "ROSILHA-M",
+  "TORDILHA",
+  "TP",
+  "ZAINA-679"
+ ],
+ "primary_fold": "test-ZAZA_val-TOSTADA",
+ "mares": {
+  "ROSILHA-M": {
+   "fields": [
+    "ROSILHA-M-B_001",
+    "ROSILHA-M-B_002",
+    "ROSILHA-M-B_003",
+    "ROSILHA-M-B_004",
+    "ROSILHA-M-B_006",
+    "ROSILHA-M-B_007",
+    "ROSILHA-M-B_008",
+    "ROSILHA-M-B_009",
+    "ROSILHA-M-B_011",
+    "ROSILHA-M-B_012",
+    "ROSILHA-M-D_003",
+    "ROSILHA-M-D_004",
+    "ROSILHA-M-D_005",
+    "ROSILHA-M-D_006",
+    "ROSILHA-M-D_007",
+    "ROSILHA-M-D_008",
+    "ROSILHA-M-D_009",
+    "ROSILHA-M-D_010",
+    "ROSILHA-M-D_011",
+    "ROSILHA-M-D_012",
+    "ROSILHA-M-G_001",
+    "ROSILHA-M-G_002",
+    "ROSILHA-M-G_003",
+    "ROSILHA-M-G_004",
+    "ROSILHA-M-G_005",
+    "ROSILHA-M-G_006",
+    "ROSILHA-M-G_009",
+    "ROSILHA-M-G_013",
+    "ROSILHA-M-G_015",
+    "ROSILHA-M-G_017"
+   ],
+   "n_fields": 30,
+   "instances": {
+    "capilar": 6101,
+    "micro": 849
+   },
+   "regions": {
+    "B": 10,
+    "D": 10,
+    "G": 10
+   }
+  },
+  "TORDILHA": {
+   "fields": [
+    "TORDILHA-B_001",
+    "TORDILHA-B_002",
+    "TORDILHA-B_003",
+    "TORDILHA-B_004",
+    "TORDILHA-B_006",
+    "TORDILHA-B_007",
+    "TORDILHA-B_008",
+    "TORDILHA-B_009",
+    "TORDILHA-B_010",
+    "TORDILHA-B_012",
+    "TORDILHA-D_001",
+    "TORDILHA-D_002",
+    "TORDILHA-D_003",
+    "TORDILHA-D_004",
+    "TORDILHA-D_005",
+    "TORDILHA-D_006",
+    "TORDILHA-D_007",
+    "TORDILHA-D_008",
+    "TORDILHA-D_011",
+    "TORDILHA-D_012",
+    "TORDILHA-G_001",
+    "TORDILHA-G_002",
+    "TORDILHA-G_004",
+    "TORDILHA-G_005",
+    "TORDILHA-G_006",
+    "TORDILHA-G_008",
+    "TORDILHA-G_009",
+    "TORDILHA-G_010",
+    "TORDILHA-G_011",
+    "TORDILHA-G_012"
+   ],
+   "n_fields": 30,
+   "instances": {
+    "capilar": 7807,
+    "micro": 1010
+   },
+   "regions": {
+    "B": 10,
+    "D": 10,
+    "G": 10
+   }
+  },
+  "TOSTADA": {
+   "fields": [
+    "TOSTADA-B_001",
+    "TOSTADA-B_002",
+    "TOSTADA-B_003",
+    "TOSTADA-B_004",
+    "TOSTADA-B_005",
+    "TOSTADA-B_006",
+    "TOSTADA-B_009",
+    "TOSTADA-B_010",
+    "TOSTADA-B_011",
+    "TOSTADA-B_012",
+    "TOSTADA-D_002",
+    "TOSTADA-D_004",
+    "TOSTADA-D_005",
+    "TOSTADA-D_006",
+    "TOSTADA-D_007",
+    "TOSTADA-D_008",
+    "TOSTADA-D_009",
+    "TOSTADA-D_010",
+    "TOSTADA-D_011",
+    "TOSTADA-D_012",
+    "TOSTADA-G_002",
+    "TOSTADA-G_003",
+    "TOSTADA-G_004",
+    "TOSTADA-G_005",
+    "TOSTADA-G_006",
+    "TOSTADA-G_007",
+    "TOSTADA-G_008",
+    "TOSTADA-G_009",
+    "TOSTADA-G_010",
+    "TOSTADA-G_011"
+   ],
+   "n_fields": 30,
+   "instances": {
+    "capilar": 5219,
+    "micro": 884
+   },
+   "regions": {
+    "B": 10,
+    "D": 10,
+    "G": 10
+   }
+  },
+  "TP": {
+   "fields": [
+    "TP-B_001",
+    "TP-B_004",
+    "TP-B_005",
+    "TP-B_006",
+    "TP-B_007",
+    "TP-B_008",
+    "TP-B_009",
+    "TP-B_010",
+    "TP-B_011",
+    "TP-B_012",
+    "TP-D_001",
+    "TP-D_002",
+    "TP-D_003",
+    "TP-D_005",
+    "TP-D_006",
+    "TP-D_007",
+    "TP-D_008",
+    "TP-D_009",
+    "TP-D_010",
+    "TP-D_012",
+    "TP-G_001",
+    "TP-G_003",
+    "TP-G_005",
+    "TP-G_006",
+    "TP-G_007",
+    "TP-G_008",
+    "TP-G_009",
+    "TP-G_010",
+    "TP-G_011",
+    "TP-G_012"
+   ],
+   "n_fields": 30,
+   "instances": {
+    "capilar": 5979,
+    "micro": 1072
+   },
+   "regions": {
+    "B": 10,
+    "D": 10,
+    "G": 10
+   }
+  },
+  "ZAINA-679": {
+   "fields": [
+    "ZAINA-679-B_001",
+    "ZAINA-679-B_002",
+    "ZAINA-679-B_004",
+    "ZAINA-679-B_005",
+    "ZAINA-679-B_006",
+    "ZAINA-679-B_007",
+    "ZAINA-679-B_008",
+    "ZAINA-679-B_010",
+    "ZAINA-679-B_011",
+    "ZAINA-679-B_012",
+    "ZAINA-679-D_001",
+    "ZAINA-679-D_004",
+    "ZAINA-679-D_005",
+    "ZAINA-679-D_006",
+    "ZAINA-679-D_007",
+    "ZAINA-679-D_008",
+    "ZAINA-679-D_009",
+    "ZAINA-679-D_010",
+    "ZAINA-679-D_011",
+    "ZAINA-679-D_014",
+    "ZAINA-679-G_001",
+    "ZAINA-679-G_002",
+    "ZAINA-679-G_004",
+    "ZAINA-679-G_006",
+    "ZAINA-679-G_007",
+    "ZAINA-679-G_008",
+    "ZAINA-679-G_009",
+    "ZAINA-679-G_010",
+    "ZAINA-679-G_011",
+    "ZAINA-679-G_012"
+   ],
+   "n_fields": 30,
+   "instances": {
+    "capilar": 6135,
+    "micro": 689
+   },
+   "regions": {
+    "B": 10,
+    "D": 10,
+    "G": 10
+   }
+  },
+  "ZAZA": {
+   "fields": [
+    "ZAZA-B_001",
+    "ZAZA-B_002",
+    "ZAZA-B_003",
+    "ZAZA-B_004",
+    "ZAZA-B_005",
+    "ZAZA-B_007",
+    "ZAZA-B_008",
+    "ZAZA-B_011",
+    "ZAZA-B_012",
+    "ZAZA-B_014",
+    "ZAZA-D_001",
+    "ZAZA-D_003",
+    "ZAZA-D_004",
+    "ZAZA-D_005",
+    "ZAZA-D_006",
+    "ZAZA-D_007",
+    "ZAZA-D_008",
+    "ZAZA-D_010",
+    "ZAZA-D_011",
+    "ZAZA-D_012",
+    "ZAZA-G_001",
+    "ZAZA-G_004",
+    "ZAZA-G_006",
+    "ZAZA-G_007",
+    "ZAZA-G_008",
+    "ZAZA-G_009",
+    "ZAZA-G_010",
+    "ZAZA-G_011",
+    "ZAZA-G_012",
+    "ZAZA-G_013"
+   ],
+   "n_fields": 30,
+   "instances": {
+    "capilar": 5166,
+    "micro": 913
+   },
+   "regions": {
+    "B": 10,
+    "D": 10,
+    "G": 10
+   }
+  }
+ },
+ "folds": [
+  {
+   "name": "test-ZAZA_val-TOSTADA",
+   "train": [
+    "ROSILHA-M",
+    "TORDILHA",
+    "TP",
+    "ZAINA-679"
+   ],
+   "val": [
+    "TOSTADA"
+   ],
+   "test": [
+    "ZAZA"
+   ]
+  },
+  {
+   "name": "test-TOSTADA_val-ROSILHA-M",
+   "train": [
+    "ZAZA",
+    "TORDILHA",
+    "TP",
+    "ZAINA-679"
+   ],
+   "val": [
+    "ROSILHA-M"
+   ],
+   "test": [
+    "TOSTADA"
+   ]
+  },
+  {
+   "name": "test-ROSILHA-M_val-TORDILHA",
+   "train": [
+    "ZAZA",
+    "TOSTADA",
+    "TP",
+    "ZAINA-679"
+   ],
+   "val": [
+    "TORDILHA"
+   ],
+   "test": [
+    "ROSILHA-M"
+   ]
+  },
+  {
+   "name": "test-TORDILHA_val-TP",
+   "train": [
+    "ZAZA",
+    "TOSTADA",
+    "ROSILHA-M",
+    "ZAINA-679"
+   ],
+   "val": [
+    "TP"
+   ],
+   "test": [
+    "TORDILHA"
+   ]
+  },
+  {
+   "name": "test-TP_val-ZAINA-679",
+   "train": [
+    "ZAZA",
+    "TOSTADA",
+    "ROSILHA-M",
+    "TORDILHA"
+   ],
+   "val": [
+    "ZAINA-679"
+   ],
+   "test": [
+    "TP"
+   ]
+  },
+  {
+   "name": "test-ZAINA-679_val-ZAZA",
+   "train": [
+    "TOSTADA",
+    "ROSILHA-M",
+    "TORDILHA",
+    "TP"
+   ],
+   "val": [
+    "ZAZA"
+   ],
+   "test": [
+    "ZAINA-679"
+   ]
+  }
+ ],
+ "hash": "1b163958faf16a20"
+}

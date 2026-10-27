@@ -76,7 +76,16 @@ def write_yaml(dst: Path, names: list[str]) -> None:
     (dst / "data.yaml").write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
-def build_native(manifest: dict, fold: dict, source: dict, dst: Path) -> None:
+def valid_label(line: str) -> bool:
+    """A segmentation polygon needs a class id and >= 3 (x, y) points."""
+    tok = line.split()
+    return len(tok) >= 7 and (len(tok) - 1) % 2 == 0
+
+
+def build_native(manifest: dict, fold: dict, source: dict, dst: Path) -> dict:
+    """Copy the fields of each role. Degenerate polygons (< 3 points, i.e. lines) are dropped here, once,
+    so every derived view (YOLO, tiles, COCO) carries exactly the same labels."""
+    dropped = {"capilar": 0, "micro": 0}
     for role, d in ROLE_DIR.items():
         (dst / d / "images").mkdir(parents=True, exist_ok=True)
         (dst / d / "labels").mkdir(parents=True, exist_ok=True)
@@ -84,11 +93,17 @@ def build_native(manifest: dict, fold: dict, source: dict, dst: Path) -> None:
             img, lbl = source[stem]
             shutil.copy2(img, dst / d / "images" / img.name)
             target = dst / d / "labels" / f"{img.stem}.txt"
-            if lbl:
-                shutil.copy2(lbl, target)
-            else:
-                target.write_text("", encoding="utf-8")
+            kept = []
+            for line in (lbl.read_text(encoding="utf-8").splitlines() if lbl else []):
+                if not line.strip():
+                    continue
+                if valid_label(line):
+                    kept.append(line)
+                else:
+                    dropped["capilar" if int(float(line.split()[0])) == CLASS_CAPILAR else "micro"] += 1
+            target.write_text("\n".join(kept) + ("\n" if kept else ""), encoding="utf-8")
     write_yaml(dst, ["Capilar", "microcotiledone"])
+    return dropped
 
 
 def build_micro(native: Path, dst: Path, size: int = 640) -> dict:
@@ -137,9 +152,11 @@ def build_fold(manifest: dict, fold_name: str, src: Path, out_root: Path, views:
     print(f"\n== fold {fold['name']}: train={fold['train']} val={fold['val']} test={fold['test']}")
 
     native = root / "native"
-    build_native(manifest, fold, source, native)
+    dropped = build_native(manifest, fold, source, native)
     verify_view(manifest, fold["name"], native)
-    report = {"fold": fold, "manifest_hash": manifest["hash"], "source": str(src), "views": {}}
+    report = {"fold": fold, "manifest_hash": manifest["hash"], "source": str(src),
+              "dropped_degenerate_polygons": dropped, "views": {}}
+    print(f"polígonos degenerados descartados: {dropped}")
 
     if "micro" in views:
         v = root / "micro_stretch640"
@@ -156,6 +173,58 @@ def build_fold(manifest: dict, fold_name: str, src: Path, out_root: Path, views:
     print(json.dumps(report["views"], ensure_ascii=False))
 
 
+def build_norm(manifest: dict, fold_name: str, out_root: Path, methods: list[str], views: set[str],
+               keep_native: bool, coco: bool, force: bool) -> None:
+    """Add stain-normalized views (native_<m> -> micro_stretch640_<m> / capilar_tiles3x3_<m>) to an existing fold.
+
+    The reference of every method is fitted on the TRAIN fields only and applied unchanged to all roles."""
+    import time
+
+    sys.path.insert(0, str(HERE.parents[1]))
+    from benchmark.views.coco_export import export_view
+    from benchmark.views.stain import StainNormalizer, normalize_dir
+
+    fold = get_fold(manifest, fold_name)
+    root = out_root / fold["name"]
+    native = root / "native"
+    if not native.exists():
+        raise SystemExit(f"{native} não existe; gere primeiro as vistas base (sem --norm)")
+    train = sorted((native / "train" / "images").iterdir())
+    for m in methods:
+        t0 = time.time()
+        micro_dir, cap_dir = root / f"micro_stretch640_{m}", root / f"capilar_tiles3x3_{m}"
+        done = (micro_dir.exists() or "micro" not in views) and (cap_dir.exists() or "capilar" not in views)
+        if done and not force:
+            print(f"[{m}] já existe (use --force para recriar)", flush=True)
+            continue
+        norm_native = root / f"native_{m}"
+        for d in (norm_native, micro_dir, cap_dir):
+            if d.exists():
+                shutil.rmtree(d)
+        print(f"\n[{m}] ajustando a referência com {len(train)} campos de treino...", flush=True)
+        norm = StainNormalizer(m).fit(train)
+        norm.save_reference(root / f"reference_{m}.json", train)
+        print(f"[{m}] normalizando os campos nativos...", flush=True)
+        rep = normalize_dir(native, norm_native, norm)
+        verify_view(manifest, fold["name"], norm_native)
+        report = {"method": m, "normalize": {k: v for k, v in rep.items() if k != "diagnostics"}, "views": {}}
+        if "micro" in views:
+            report["views"][micro_dir.name] = build_micro(norm_native, micro_dir)
+            verify_view(manifest, fold["name"], micro_dir)
+        if "capilar" in views:
+            report["views"][cap_dir.name] = build_capilar(norm_native, cap_dir)
+            verify_view(manifest, fold["name"], cap_dir, tiles_per_field=9)
+        if coco:
+            for v in (micro_dir, cap_dir):
+                if v.exists():
+                    export_view(v, root / "coco" / v.name)
+        if not keep_native:
+            shutil.rmtree(norm_native)
+        report["seconds"] = round(time.time() - t0)
+        (root / f"norm_report_{m}.json").write_text(json.dumps(report, indent=1, ensure_ascii=False), encoding="utf-8")
+        print(f"[{m}] pronto em {report['seconds']} s | imagens no plano B: {len(rep['fallbacks'])}", flush=True)
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--manifest", type=Path, default=DEFAULT_MANIFEST)
@@ -165,6 +234,9 @@ def main() -> None:
     ap.add_argument("--all-folds", action="store_true")
     ap.add_argument("--views", default="native,micro,capilar", help="subset of native,micro,capilar")
     ap.add_argument("--force", action="store_true", help="recria uma pasta de fold já existente")
+    ap.add_argument("--norm", default="", help="métodos de normalização (vírgula); ver benchmark/views/stain.py")
+    ap.add_argument("--keep-native-norm", action="store_true", help="mantém native_<método> (ocupa ~GBs)")
+    ap.add_argument("--coco", action="store_true", help="também exporta COCO das vistas geradas")
     args = ap.parse_args()
 
     manifest = load_manifest(args.manifest)
@@ -174,6 +246,11 @@ def main() -> None:
     if unknown:
         raise SystemExit(f"vistas desconhecidas: {unknown}")
     names = [f["name"] for f in manifest["folds"]] if args.all_folds else [args.fold]
+    methods = [m.strip() for m in args.norm.split(",") if m.strip()]
+    if methods:
+        for n in names:
+            build_norm(manifest, n, args.out, methods, views, args.keep_native_norm, args.coco, args.force)
+        return
     for n in names:
         build_fold(manifest, n, args.src, args.out, views, args.force)
 

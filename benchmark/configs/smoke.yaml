@@ -1,0 +1,16 @@
+# Smoke test: tiny runs that only check the machinery (NOT results). Timing is meaningless while other jobs run.
+defaults:
+  family: ultralytics
+  fold: primary
+  seed: 0
+  patience: 30
+
+runs:
+  - task: micro
+    model: yolo11s-seg.pt
+    epochs: 2
+    batch: 2
+    recipe: micro_bench
+    extra: {fraction: 0.1}
+    eval: {max_images: 6}
+    tags: [smoke]

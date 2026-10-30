@@ -1,0 +1,51 @@
+# Fase 1 - linha de base (sem normalização), fold primário (teste=ZAZA, val=TOSTADA).
+#   python -m benchmark.runner run benchmark/configs/phase1_baseline.yaml --results D:\projeto_placentas_clayton\benchmark_results
+# Interrompível (Ctrl+C ou arquivo STOP); ao rodar de novo continua da última execução concluída.
+# Regra de justiça: uma receita por tarefa para TODOS os modelos da família (benchmark/recipes.py).
+# Só entram famílias que o runner já executa (ultralytics). As demais ficam comentadas até o adaptador existir.
+# Tempos medidos: micro ~0,7 h/120 épocas (yolo11s); capilar ~3-4 h/60 épocas (yolo11s). Modelos maiores demoram mais.
+defaults:
+  family: ultralytics
+  fold: primary
+  seed: 0
+  norm: none
+  patience: 30
+
+runs:
+  # ---------------- micro (placentomas): 640x640 esticado, 120 épocas ----------------
+  - task: micro
+    model:
+      # pesos locais (archive/weights_base)
+      - yolov8n-seg.pt
+      - yolov8s-seg.pt
+      - yolov8m-seg.pt
+      - yolo11s-seg.pt
+      - yolo26s-seg.pt
+      # download automático pelo Ultralytics (avisar antes de rodar)
+      - yolo11n-seg.pt
+      - yolo11m-seg.pt
+      - yolo26n-seg.pt
+      - yolo26m-seg.pt
+      - yolov9c-seg.pt
+    epochs: 120
+    batch: 8
+    recipe: micro_bench
+    tags: [phase1, baseline]
+
+  # ---------------- capilar: ladrilhos 3x3, 60 épocas ----------------
+  - task: capilar
+    model:
+      - yolov8n-seg.pt
+      - yolov8s-seg.pt
+      - yolo11s-seg.pt
+      - yolo26s-seg.pt
+      - yolo11n-seg.pt
+      - yolo26n-seg.pt
+    epochs: 60
+    batch: 8
+    recipe: capilar_champion
+    tags: [phase1, baseline]
+
+  # ---------------- candidatos para quando houver adaptador / instalação ----------------
+  # RF-DETR Seg Nano/Small/Medium, Mask R-CNN (torchvision), Mask2Former (HF), U-Net + recuperação de instâncias,
+  # InstanSeg/Cellpose, detector + SAM2, MMDet (RTMDet/SOLOv2, env separado), trilha só de detecção.

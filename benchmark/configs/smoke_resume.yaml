@@ -1,0 +1,16 @@
+# Interrupt/resume test: 4 epochs; the test hook interrupts after epoch 2, the second run must continue from last.pt.
+defaults:
+  family: ultralytics
+  fold: primary
+  seed: 0
+  patience: 30
+
+runs:
+  - task: micro
+    model: yolo11s-seg.pt
+    epochs: 4
+    batch: 2
+    recipe: micro_bench
+    extra: {fraction: 0.1}
+    eval: {max_images: 6}
+    tags: [smoke, resume]

@@ -174,7 +174,7 @@ def build_fold(manifest: dict, fold_name: str, src: Path, out_root: Path, views:
 
 
 def build_norm(manifest: dict, fold_name: str, out_root: Path, methods: list[str], views: set[str],
-               keep_native: bool, coco: bool, force: bool) -> None:
+               keep_native: bool, coco: bool, force: bool, resume: bool = False) -> None:
     """Add stain-normalized views (native_<m> -> micro_stretch640_<m> / capilar_tiles3x3_<m>) to an existing fold.
 
     The reference of every method is fitted on the TRAIN fields only and applied unchanged to all roles."""
@@ -198,14 +198,24 @@ def build_norm(manifest: dict, fold_name: str, out_root: Path, methods: list[str
             print(f"[{m}] já existe (use --force para recriar)", flush=True)
             continue
         norm_native = root / f"native_{m}"
-        for d in (norm_native, micro_dir, cap_dir):
+        ref_file = root / f"reference_{m}.json"
+        saved = None
+        # --resume keeps the already-normalized fields and RESTORES the original reference (never refit:
+        # a new fit could differ, and fields normalized with different references must not be mixed)
+        resuming = resume and norm_native.exists() and ref_file.exists()
+        if resuming:
+            saved = json.loads(ref_file.read_text(encoding="utf-8"))["reference"]
+        for d in ((micro_dir, cap_dir) if resuming else (norm_native, micro_dir, cap_dir)):
             if d.exists():
                 shutil.rmtree(d)
-        print(f"\n[{m}] ajustando a referência com {len(train)} campos de treino...", flush=True)
-        norm = StainNormalizer(m).fit(train)
-        norm.save_reference(root / f"reference_{m}.json", train)
+        print(f"\n[{m}] {'RESTAURANDO' if resuming else 'ajustando'} a referência ({len(train)} campos de treino)...", flush=True)
+        norm = StainNormalizer(m).fit(train, saved_ref=saved)
+        if not resuming:
+            norm.save_reference(ref_file, train)
         print(f"[{m}] normalizando os campos nativos...", flush=True)
-        rep = normalize_dir(native, norm_native, norm)
+        rep = normalize_dir(native, norm_native, norm, resume=resuming)
+        if resuming:
+            print(f"[{m}] campos reaproveitados de uma execução anterior: {rep.get('resumed_images', 0)}", flush=True)
         verify_view(manifest, fold["name"], norm_native)
         report = {"method": m, "normalize": {k: v for k, v in rep.items() if k != "diagnostics"}, "views": {}}
         if "micro" in views:
@@ -237,6 +247,8 @@ def main() -> None:
     ap.add_argument("--norm", default="", help="métodos de normalização (vírgula); ver benchmark/views/stain.py")
     ap.add_argument("--keep-native-norm", action="store_true", help="mantém native_<método> (ocupa ~GBs)")
     ap.add_argument("--coco", action="store_true", help="também exporta COCO das vistas geradas")
+    ap.add_argument("--resume", action="store_true",
+                    help="com --norm: continua uma normalização interrompida, restaurando a referência salva")
     args = ap.parse_args()
 
     manifest = load_manifest(args.manifest)
@@ -249,7 +261,7 @@ def main() -> None:
     methods = [m.strip() for m in args.norm.split(",") if m.strip()]
     if methods:
         for n in names:
-            build_norm(manifest, n, args.out, methods, views, args.keep_native_norm, args.coco, args.force)
+            build_norm(manifest, n, args.out, methods, views, args.keep_native_norm, args.coco, args.force, args.resume)
         return
     for n in names:
         build_fold(manifest, n, args.src, args.out, views, args.force)

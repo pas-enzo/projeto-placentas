@@ -1,0 +1,58 @@
+# GERADO por benchmark/make_phase2.py a partir dos resultados da fase 1 (seleção por AP de validação).
+defaults:
+  family: ultralytics
+  fold: primary
+  seed: 0
+  patience: 30
+runs:
+- task: micro
+  model: yolo26m-seg.pt
+  norm: &id001
+  - whitebalance
+  - grayscale
+  - histmatch
+  - macenko
+  - reinhard
+  - vahadane
+  epochs: 120
+  batch: 4
+  recipe: micro_bench
+  tags:
+  - phase2
+  - stain
+- task: micro
+  model: yolo26s-seg.pt
+  norm: *id001
+  epochs: 120
+  batch: 8
+  recipe: micro_bench
+  tags:
+  - phase2
+  - stain
+- task: micro
+  model: yolo11m-seg.pt
+  norm: *id001
+  epochs: 120
+  batch: 8
+  recipe: micro_bench
+  tags:
+  - phase2
+  - stain
+- task: capilar
+  model: yolo11n-seg.pt
+  norm: *id001
+  epochs: 60
+  batch: 8
+  recipe: capilar_champion
+  tags:
+  - phase2
+  - stain
+- task: capilar
+  model: yolo11s-seg.pt
+  norm: *id001
+  epochs: 60
+  batch: 8
+  recipe: capilar_champion
+  tags:
+  - phase2
+  - stain

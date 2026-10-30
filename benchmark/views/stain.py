@@ -75,7 +75,9 @@ class _Step:
         self._lib = None
         self._mosaic = None
 
-    def fit_mosaic(self, mosaic: np.ndarray | None) -> None:
+    def fit_mosaic(self, mosaic: np.ndarray | None, saved: dict | None = None) -> None:
+        """`saved`: reference stored by a previous fit; used to RESTORE the exact same Vahadane reference
+        (its dictionary learning is not guaranteed to be reproducible across runs)."""
         m = self.method
         if m in ("none", "grayscale"):
             return
@@ -89,7 +91,16 @@ class _Step:
             s = 2400 / max(mosaic.shape[:2])  # the stain matrix is global: a smaller mosaic is enough
             small = mosaic if s >= 1 else cv2.resize(mosaic, None, fx=s, fy=s, interpolation=cv2.INTER_AREA)
             self._lib = staintools.StainNormalizer(method="vahadane")
-            self._lib.fit(staintools.LuminosityStandardizer.standardize(small))
+            target = staintools.LuminosityStandardizer.standardize(small)
+            if saved and "stain_matrix" in saved:
+                # restore: same stain matrix as the original fit; maxC_target is a deterministic function of it
+                from staintools.miscellaneous.get_concentrations import get_concentrations
+
+                self._lib.stain_matrix_target = np.asarray(saved["stain_matrix"])
+                conc = get_concentrations(target, self._lib.stain_matrix_target)
+                self._lib.maxC_target = np.percentile(conc, 99, axis=0).reshape((1, 2))
+            else:
+                self._lib.fit(target)
             sm = getattr(self._lib, "stain_matrix_target", None)
             self.ref = {"stain_matrix": np.asarray(sm).tolist()} if sm is not None else {}
         else:
@@ -154,13 +165,13 @@ class StainNormalizer:
     def ref(self) -> dict:
         return {"n_train_images": self.n_train, **{s.method: s.ref for s in self.steps if s.ref}}
 
-    def fit(self, train_paths: list[Path]) -> "StainNormalizer":
+    def fit(self, train_paths: list[Path], saved_ref: dict | None = None) -> "StainNormalizer":
         self.n_train = len(train_paths)
         if all(s.method in ("none", "grayscale") for s in self.steps):
             return self
         mosaic = reference_mosaic(train_paths)
         for k, s in enumerate(self.steps):
-            s.fit_mosaic(mosaic)
+            s.fit_mosaic(mosaic, (saved_ref or {}).get(s.method))
             if k < len(self.steps) - 1:
                 mosaic = s.transform(mosaic)[0]  # later steps are fitted on already-normalized pixels
         return self
@@ -181,7 +192,15 @@ class StainNormalizer:
                                     "train_images": [p.name[:30] for p in train_paths]}, indent=1), encoding="utf-8")
 
 
-def normalize_dir(src: Path, dst: Path, norm: StainNormalizer) -> dict:
+def _valid_output(target: Path, src: Path) -> bool:
+    """A previous run's output is reusable only if it decodes and has the size of the source field."""
+    if not target.exists() or target.stat().st_size == 0:
+        return False
+    out, ref = cv2.imread(str(target)), cv2.imread(str(src))
+    return out is not None and ref is not None and out.shape == ref.shape
+
+
+def normalize_dir(src: Path, dst: Path, norm: StainNormalizer, resume: bool = False) -> dict:
     """Normalize every field of src/<split>/images into dst (PNG, same stem); labels are copied unchanged."""
     report = {"method": norm.method, "images": 0, "fallbacks": [], "diagnostics": {}}
     for split in ("train", "valid", "test"):
@@ -191,8 +210,17 @@ def normalize_dir(src: Path, dst: Path, norm: StainNormalizer) -> dict:
         (dst / split / "images").mkdir(parents=True, exist_ok=True)
         (dst / split / "labels").mkdir(parents=True, exist_ok=True)
         for img in sorted(img_dir.iterdir()):
+            target = dst / split / "images" / (img.stem + ".png")
+            if resume and _valid_output(target, img):  # already normalized (with the SAME restored reference)
+                report["images"] += 1
+                report["resumed_images"] = report.get("resumed_images", 0) + 1
+                continue
             out, diag = norm.transform(_read_rgb(img))
-            cv2.imwrite(str(dst / split / "images" / (img.stem + ".png")), cv2.cvtColor(out, cv2.COLOR_RGB2BGR))
+            tmp = target.with_name(target.stem + ".tmp.png")
+            cv2.imwrite(str(tmp), cv2.cvtColor(out, cv2.COLOR_RGB2BGR))
+            import os
+
+            os.replace(tmp, target)  # atomic: a kill mid-write never leaves a truncated image under the final name
             report["images"] += 1
             if diag:
                 report["diagnostics"][img.stem[:24]] = diag

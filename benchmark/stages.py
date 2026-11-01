@@ -76,19 +76,30 @@ def _field_level(spec: RunSpec, predictor, conf: float, limit: int | None) -> di
         merged = sliced.merge(sliced.collect(lambda tile: predictor.predict(tile, cls_id=0), bgr), conf)
         secs.append(time.time() - t)
         images.append((merged, read_gt_polygons(nat / "test" / "labels" / f"{f.stem}.txt", h, w, 0), (h, w)))
-    return {"level": "field", "n_fields": len(images), "seconds_per_field": float(np.mean(secs)),
-            "instance": metrics.instance_metrics(images), "pixel": metrics.pixel_metrics(images),
-            "morphometry": metrics.morphometry(images)}
+    res = {"level": "field", "n_fields": len(images), "seconds_per_field": float(np.mean(secs)),
+           "instance": metrics.instance_metrics(images), "pixel": metrics.pixel_metrics(images),
+           "morphometry": metrics.morphometry(images)}
+    return res, metrics.per_image_rows(images)
 
 
-def eval_test(spec: RunSpec, run_dir: Path, family) -> dict:
+def test_pass(spec: RunSpec, run_dir: Path, family) -> tuple[dict, dict]:
+    """Predict the test split with the confidence fixed on validation. Returns (metrics, per-image rows)."""
     conf = read_json(run_dir / "metrics_val.json")["conf_star"]
     predictor = family.make_predictor(spec, run_dir, conf=0.001)
     images, ms = predict_split(predictor, view_dir(spec), "test", _cls(spec), spec.eval.get("max_images"))
     res = {"level": "tile" if spec.task == "capilar" else "image", "n_images": len(images), "conf_star": conf,
            "ms_per_image": float(np.mean(ms)), "report": split_report(images, conf)}
+    rows = {"unit": res["level"], "rows": metrics.per_image_rows(images, conf)}
+    out = {"image": rows}
     if spec.task == "capilar":
         predictor.conf = conf  # NMS-equivalent shortcut: the merge only keeps >= conf anyway
-        res["field"] = _field_level(spec, predictor, conf, spec.eval.get("max_fields"))
+        res["field"], field_rows = _field_level(spec, predictor, conf, spec.eval.get("max_fields"))
+        out["field"] = {"unit": "field", "rows": field_rows}
+    return res, out
+
+
+def eval_test(spec: RunSpec, run_dir: Path, family) -> dict:
+    res, rows = test_pass(spec, run_dir, family)
+    write_json(run_dir / "perimage_test.json", rows)
     write_json(run_dir / "metrics_test.json", res)
     return res

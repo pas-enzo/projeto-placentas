@@ -160,6 +160,20 @@ def per_field(images: list[Image], conf: float | None = None) -> dict[str, np.nd
     return {k: np.asarray(v, dtype=float) for k, v in cols.items()}
 
 
+def per_image_rows(images: list[Image], conf: float | None = None, thr: float = 0.5) -> list[dict]:
+    """One compact row per image/field: enough to bootstrap and to run paired tests without keeping any mask."""
+    if conf is not None:
+        images = filter_conf(images, conf)
+    rows = []
+    for pred, gt, (h, w) in images:
+        tp, fp, fn, _ = match(pred, gt, thr)
+        up, ug = union_mask(pred, h, w), union_mask(gt, h, w)
+        rows.append({"tp": tp, "fp": fp, "fn": fn, "n_pred": len(pred), "n_gt": len(gt),
+                     "area_pred_sum": int(sum(p.area for p in pred)), "area_gt_sum": int(sum(g.area for g in gt)),
+                     "area_pred_union": int(up.sum()), "area_gt_union": int(ug.sum()), "inter": int((up & ug).sum())})
+    return rows
+
+
 def morphometry(images: list[Image], conf: float | None = None) -> dict:
     f = per_field(images, conf)
     out: dict = {"n_fields": len(f["n_gt"])}

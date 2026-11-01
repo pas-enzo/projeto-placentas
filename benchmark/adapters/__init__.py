@@ -11,4 +11,8 @@ def get_family(name: str):
         from .ultralytics_train import UltralyticsFamily
 
         return UltralyticsFamily()
+    if name == "torchvision":
+        from .torchvision_adapter import TorchvisionFamily
+
+        return TorchvisionFamily()
     raise KeyError(f"família sem adaptador ainda: {name!r}")

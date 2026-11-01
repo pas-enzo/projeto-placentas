@@ -1,0 +1,14 @@
+# Smoke test da família torchvision (Mask R-CNN): só verifica a mecânica, NÃO são resultados.
+defaults:
+  family: torchvision
+  fold: primary
+  seed: 0
+  norm: none
+
+runs:
+  - task: micro
+    model: maskrcnn_resnet50_fpn_v2
+    epochs: 2
+    batch: 2
+    eval: {max_images: 6}
+    tags: [smoke]

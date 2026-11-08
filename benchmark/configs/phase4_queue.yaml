@@ -1,0 +1,13 @@
+# Fase 4 (fold primário, sem normalização). Roda com:
+#   python -m benchmark.runner run benchmark/configs/phase4_queue.yaml --results D:\projeto_placentas_clayton\benchmark_results
+# 1) RF-DETR Seg Nano no micro: batch 1 (batch 4 e 2 não cabem nos 4 GB; acumulação de gradiente 8 mantém o batch efetivo).
+# 2) Mask R-CNN v1 no capilar com 40 épocas: refaz o teste de 20 épocas, que ficou inválido no nível de campo.
+defaults:
+  fold: primary
+  seed: 0
+  norm: none
+  patience: 30
+
+runs:
+  - {family: rfdetr, task: micro, model: rfdetr-seg-nano, epochs: 40, batch: 1, tags: [phase4, rfdetr]}
+  - {family: torchvision, task: capilar, model: maskrcnn_resnet50_fpn, epochs: 40, batch: 2, tags: [phase4, maskrcnn]}

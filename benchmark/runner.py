@@ -55,6 +55,7 @@ def execute(spec: RunSpec, run_dir: Path) -> None:
             resume = bool(family.supports_resume and family.can_resume(run_dir))
             if resume:
                 set_status(run_dir, "running", resumed=True)
+            retries = st.get("oom_retries") or 0
             while True:
                 try:
                     info = family.train(spec, run_dir, resume=resume, batch=batch)
@@ -64,10 +65,12 @@ def execute(spec: RunSpec, run_dir: Path) -> None:
                         import torch
 
                         batch = max(1, batch // 2)
+                        retries += 1
                         shutil.rmtree(run_dir / "train", ignore_errors=True)
                         torch.cuda.empty_cache()
                         resume = False
-                        set_status(run_dir, "running", batch_used=batch, oom_retries=(st.get("oom_retries") or 0) + 1)
+                        print(f"  falta de memória: nova tentativa com batch {batch} ({type(e).__name__}: {str(e)[:120]})", flush=True)
+                        set_status(run_dir, "running", batch_used=batch, oom_retries=retries)
                         continue
                     raise
             set_status(run_dir, "running", batch_used=batch, **info)

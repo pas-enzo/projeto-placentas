@@ -1,0 +1,15 @@
+# Retomada e tempo da família torchvision (só mecânica). Interrompe na época 2 de 4 com BENCH_TEST_INTERRUPT_EPOCH=2.
+defaults:
+  family: torchvision
+  fold: primary
+  seed: 0
+  norm: none
+
+runs:
+  - task: micro
+    model: maskrcnn_resnet50_fpn
+    epochs: 4
+    batch: 2
+    extra: {}
+    eval: {max_images: 6}
+    tags: [smoke]

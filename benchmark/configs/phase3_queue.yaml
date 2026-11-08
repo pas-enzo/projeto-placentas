@@ -1,0 +1,34 @@
+# Fila da fase 3, em ordem de prioridade (o que não couber no prazo continua depois: basta rodar o mesmo comando).
+#   python -m benchmark.runner run benchmark/configs/phase3_queue.yaml --results D:\projeto_placentas_clayton\benchmark_results
+# Bloco 1-2: Mask R-CNN (protocolo REDUZIDO de épocas por custo: v2 ~205 s/época no micro, v1 ~45 s/época).
+# Bloco 3-4: finalistas YOLO da fase 1 repetidos nos outros 5 folds (média +- desvio entre éguas).
+defaults:
+  fold: primary
+  seed: 0
+  norm: none
+  patience: 30
+
+runs:
+  # 1. Mask R-CNN v1 (rápido): micro e capilar
+  - {family: torchvision, task: micro,   model: maskrcnn_resnet50_fpn, epochs: 60, batch: 2, tags: [phase3, maskrcnn]}
+  - {family: torchvision, task: capilar, model: maskrcnn_resnet50_fpn, epochs: 20, batch: 2, tags: [phase3, maskrcnn]}
+  # 2. Mask R-CNN v2 (lento): só micro
+  - {family: torchvision, task: micro,   model: maskrcnn_resnet50_fpn_v2, epochs: 40, batch: 2, tags: [phase3, maskrcnn]}
+  # 3. Finalistas YOLO do micro nos outros folds
+  - family: ultralytics
+    task: micro
+    model: [yolo26s-seg.pt, yolo26m-seg.pt, yolo11m-seg.pt]
+    fold: [test-TOSTADA_val-ROSILHA-M, test-ROSILHA-M_val-TORDILHA, test-TORDILHA_val-TP, test-TP_val-ZAINA-679, test-ZAINA-679_val-ZAZA]
+    epochs: 120
+    batch: 8
+    recipe: micro_bench
+    tags: [phase3, folds]
+  # 4. Finalista YOLO do capilar nos outros folds
+  - family: ultralytics
+    task: capilar
+    model: yolo11s-seg.pt
+    fold: [test-TOSTADA_val-ROSILHA-M, test-ROSILHA-M_val-TORDILHA, test-TORDILHA_val-TP, test-TP_val-ZAINA-679, test-ZAINA-679_val-ZAZA]
+    epochs: 60
+    batch: 8
+    recipe: capilar_champion
+    tags: [phase3, folds]

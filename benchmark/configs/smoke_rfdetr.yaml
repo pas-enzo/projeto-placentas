@@ -1,0 +1,14 @@
+# Smoke test da família RF-DETR: só a mecânica (NÃO são resultados).
+defaults:
+  family: rfdetr
+  fold: primary
+  seed: 0
+  norm: none
+
+runs:
+  - task: micro
+    model: rfdetr-seg-nano
+    epochs: 2
+    batch: 4
+    eval: {max_images: 6}
+    tags: [smoke]

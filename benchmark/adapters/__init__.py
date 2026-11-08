@@ -15,4 +15,8 @@ def get_family(name: str):
         from .torchvision_adapter import TorchvisionFamily
 
         return TorchvisionFamily()
+    if name == "rfdetr":
+        from .rfdetr_adapter import RFDetrFamily
+
+        return RFDetrFamily()
     raise KeyError(f"família sem adaptador ainda: {name!r}")

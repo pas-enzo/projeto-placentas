@@ -47,9 +47,9 @@ def build_parser() -> argparse.ArgumentParser:
         "--micro-conf",
         type=float,
         default=None,
-        help="Override micro conf* (default 0.44 rfdetr / 0.46 yolo).",
+        help="Override micro conf* (default 0.44 rfdetr / 0.50 yolo).",
     )
-    p.add_argument("--capilar-conf", type=float, default=None, help="Override capilar conf* (default 0.33).")
+    p.add_argument("--capilar-conf", type=float, default=None, help="Override capilar conf* (default 0.30).")
     p.add_argument(
         "--micro-ckpt",
         type=str,

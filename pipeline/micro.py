@@ -125,7 +125,7 @@ class MicrocotyledonModel:
 
 
 class MicrocotyledonYOLOModel:
-    """YOLO11s-seg — same stretch-640 input and area factor as the RF-DETR head."""
+    """YOLO-seg (`cfg.micro_yolo_name`, YOLO26s by default) — same stretch-640 input and area factor as the RF-DETR head."""
 
     backend = "yolo"
 
@@ -157,7 +157,7 @@ class MicrocotyledonYOLOModel:
         else:
             masks = [(m > 0.5).astype(np.uint8) for m in r.masks.data.cpu().numpy()]
             confs = [float(c) for c in r.boxes.conf.cpu().numpy()]
-        return _stretch_result(masks, confs, conf, self.cfg, "YOLO11s-seg")
+        return _stretch_result(masks, confs, conf, self.cfg, self.cfg.micro_yolo_name)
 
     def predict_path(self, path: Path, conf: float | None = None) -> InstanceResult:
         from .viz import read_bgr

@@ -57,11 +57,12 @@ class PipelineConfig:
     micro_conf: float = 0.44
     micro_resolution: int = 672
 
-    # Microcotyledon (YOLO11s-seg, same stretch-640 Roboflow export)
-    micro_yolo_ckpt: str = (
-        "archive/experiments/v2_yolo_early/runs/segment/placentas_v11_aug_v2/weights/best.pt"
-    )
-    micro_yolo_conf: float = 0.46
+    # Microcotyledon (YOLO26s-seg, same stretch-640 view). Benchmark champion, trained with the mare-wise split
+    # (primary fold: test ZAZA, val TOSTADA); conf* 0.50 = max F1 on validation. Provenance: weights_pipeline/ORIGEM.txt.
+    # Previous champion (random split): archive/experiments/v2_yolo_early/runs/segment/placentas_v11_aug_v2/weights/best.pt, conf 0.46.
+    micro_yolo_ckpt: str = r"D:\projeto_placentas_clayton\weights_pipeline\micro_yolo26s_fold_principal.pt"
+    micro_yolo_name: str = "YOLO26s-seg"
+    micro_yolo_conf: float = 0.50
     micro_yolo_imgsz: int = 640
 
     # Stretch-space area factor (Roboflow 640×640 anisotropic export); both backends.
@@ -70,9 +71,10 @@ class PipelineConfig:
         UM_PER_PX_NATIVE**2 * (NATIVE_W / MICRO_CANVAS) * (NATIVE_H / MICRO_CANVAS)
     )  # ≈ 0.3557
 
-    # Capillary (YOLO11s-seg + SAHI on native FOV)
-    capilar_ckpt: str = "v3_capilar_yolo11s/runs/capilar_yolo11s_tiled_v4/weights/best.pt"
-    capilar_conf: float = 0.33
+    # Capillary (YOLO11s-seg + SAHI on native FOV). Benchmark champion, mare-wise split (primary fold), conf* 0.30 on
+    # validation tiles. Previous champion: v3_capilar_yolo11s/runs/capilar_yolo11s_tiled_v4/weights/best.pt, conf 0.33.
+    capilar_ckpt: str = r"D:\projeto_placentas_clayton\weights_pipeline\capilar_yolo11s_fold_principal.pt"
+    capilar_conf: float = 0.30
     capilar_imgsz: int = 640
     capilar_slice_w: int = 1380
     capilar_slice_h: int = 1032

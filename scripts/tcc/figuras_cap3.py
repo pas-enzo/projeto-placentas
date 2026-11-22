@@ -170,15 +170,15 @@ def fig_selecao():
     ax.text(0.0, 6.25, "Etapa 1 · fold principal", fontsize=8.8, fontweight="bold", va="center")
     ax.text(6.55, 6.25, "Etapa 2 · seis rotações", fontsize=8.8, fontweight="bold", va="center")
     rows = [("Microcotilédones", BLUE, 3.95,
-             "13 modelos:\n10 YOLO, 2 Mask R-CNN\ne 1 RF-DETR-Seg", "YOLO26m\nYOLO26s\nYOLO11m",
-             None),
+             "10 modelos YOLO", "YOLO26m\nYOLO26s\nYOLO11m",
+             "AP de máscara\nna validação do\nfold principal"),
             ("Capilares", YELLOW, 1.45,
-             "11 modelos: 10 YOLO\ne 1 Mask R-CNN (os 4\nYOLO maiores, depois)", "YOLO11n\nYOLO11s\nYOLO26s",
-             None)]
-    for name, c, y, s1, s2, ad in rows:
+             "6 variantes YOLO\n(n e s de v8, 11 e 26)", "YOLO11s\nYOLO26s",
+             "AP de máscara na\nvalidação; exceções\ndescritas no texto")]
+    for name, c, y, s1, s2, rk in rows:
         ax.text(0.0, y + 1.78, name, fontsize=8.4, fontweight="bold", color=c if c != YELLOW else "#a87500")
         box(ax, 0.0, y, 3.1, 1.5, "Treino único", s1, fc="white", ec=c)
-        box(ax, 3.6, y, 2.5, 1.5, "Ranking", "AP de máscara\nna validação do\nfold principal", fc="white", ec=c)
+        box(ax, 3.6, y, 2.5, 1.5, "Ranking", rk, fc="white", ec=c)
         box(ax, 6.55, y, 2.6, 1.5, "Finalistas", s2, fc="white", ec=c)
         box(ax, 9.6, y, 2.4, 1.5, "Escolha", "1 erro-padrão da\nmelhor média; menos\nparâmetros", fc="white", ec=INK)
         arrow(ax, (3.1, y + .75), (3.6, y + .75))

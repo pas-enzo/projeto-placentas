@@ -1,0 +1,25 @@
+# Fase 8 (2026-11-15): variantes "medium" no capilar (triagem do fold principal), para completar a comparacao do capilar com as mesmas
+# familias avaliadas no micro (YOLOv8m, YOLO11m, YOLO26m, YOLOv9c). Mesma receita, epocas e batch dos demais capilares
+# (capilar_champion, 60 epocas, batch 8; o runner reduz o batch sozinho se faltar memoria na GPU de 4 GB). Pesos ja existem localmente
+# (usados no micro), sem download. Estimativa: ~12-16 h no total, mas pode ser mais se o batch for reduzido.
+# Rodar da raiz do repositorio:
+#   python -m benchmark.runner run benchmark/configs/phase8_capilar_medios.yaml --results D:\projeto_placentas_clayton\benchmark_results
+# Para interromper: criar o arquivo STOP em D:\projeto_placentas_clayton\benchmark_results (termina a execucao atual e sai; rodar o mesmo comando retoma).
+defaults:
+  family: ultralytics
+  fold: primary
+  seed: 0
+  norm: none
+  patience: 30
+
+runs:
+  - task: capilar
+    model:
+      - yolo11m-seg.pt
+      - yolov8m-seg.pt
+      - yolo26m-seg.pt
+      - yolov9c-seg.pt
+    epochs: 60
+    batch: 8
+    recipe: capilar_champion
+    tags: [phase8, baseline]

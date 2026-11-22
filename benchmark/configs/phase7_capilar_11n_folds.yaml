@@ -1,0 +1,21 @@
+# Fase 7 (2026-11-14): YOLO11n no capilar nos outros 5 folds, para o finalista que ficou sem a avaliacao em 6 folds
+# (a fase 3 rodou so o YOLO11s; YOLO11n e YOLO11s empatam na validacao do fold principal: AP .293 / .292, F1 .628 / .628).
+# Mesma receita, epocas e batch dos demais capilares (capilar_champion, 60 epocas, batch 8). Estimativa: ~1h50 por execucao (~8-10 h no total).
+# Rodar da raiz do repositorio:
+#   python -m benchmark.runner run benchmark/configs/phase7_capilar_11n_folds.yaml --results D:\projeto_placentas_clayton\benchmark_results
+# Para interromper: criar o arquivo STOP em D:\projeto_placentas_clayton\benchmark_results (termina a execucao atual e sai; rodar o mesmo comando retoma).
+defaults:
+  fold: primary
+  seed: 0
+  norm: none
+  patience: 30
+
+runs:
+  - family: ultralytics
+    task: capilar
+    model: yolo11n-seg.pt
+    fold: [test-TOSTADA_val-ROSILHA-M, test-ROSILHA-M_val-TORDILHA, test-TORDILHA_val-TP, test-TP_val-ZAINA-679, test-ZAINA-679_val-ZAZA]
+    epochs: 60
+    batch: 8
+    recipe: capilar_champion
+    tags: [phase7, folds]

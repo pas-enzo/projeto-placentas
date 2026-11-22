@@ -1,0 +1,50 @@
+[
+  {
+    "label": "micro-yolo",
+    "n_images": 27,
+    "P": 0.9061,
+    "R": 0.8721,
+    "F1": 0.8888,
+    "mean_IoU": 0.8809,
+    "area_rel_error_sum": 0.0062,
+    "area_rel_error_union": 0.0657,
+    "pred_over_gt_sum": 1.0062,
+    "pred_over_gt_union": 0.9343,
+    "overlap_pct_of_sum": 7.14,
+    "pred_count": 820,
+    "gt_count": 852,
+    "S": 0.8969
+  },
+  {
+    "label": "micro-rfdetr",
+    "n_images": 27,
+    "P": 0.9056,
+    "R": 0.912,
+    "F1": 0.9088,
+    "mean_IoU": 0.9117,
+    "area_rel_error_sum": 0.0166,
+    "area_rel_error_union": 0.0629,
+    "pred_over_gt_sum": 0.9834,
+    "pred_over_gt_union": 0.9371,
+    "overlap_pct_of_sum": 4.71,
+    "pred_count": 858,
+    "gt_count": 852,
+    "S": 0.9171
+  },
+  {
+    "label": "capilar-yolo+sahi",
+    "n_images": 27,
+    "P": 0.769,
+    "R": 0.658,
+    "F1": 0.7092,
+    "mean_IoU": 0.7838,
+    "area_rel_error_sum": 0.0045,
+    "area_rel_error_union": 0.0637,
+    "pred_over_gt_sum": 1.0045,
+    "pred_over_gt_union": 0.9363,
+    "overlap_pct_of_sum": 6.78,
+    "pred_count": 4419,
+    "gt_count": 5164,
+    "S": 0.7602
+  }
+]

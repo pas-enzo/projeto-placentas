@@ -1,0 +1,28 @@
+# Fase 6 (2026-11-12): Reinhard no fold em que a TOSTADA é a égua de TESTE (teste limpo da normalização numa segunda égua).
+# Mesmos modelos, épocas, batch e receita dos campeões normalizados da fase 2 e dos modelos 'none' deste mesmo fold:
+#   micro:  yolo26s-seg, 120 épocas, batch 8, micro_bench   (none: micro__...yolo26s-seg__none__test-TOSTADA_val-ROSILHA-M)
+#   capilar: yolo11s-seg, 60 épocas, batch 8, capilar_champion (none: capilar__...yolo11s-seg__none__test-TOSTADA_val-ROSILHA-M)
+# Pré-requisito: vistas normalizadas do fold (scripts/data/build_views.py --fold test-TOSTADA_val-ROSILHA-M --norm reinhard).
+# Rodar da raiz do repositório:
+#   python -m benchmark.runner run benchmark/configs/phase6_tostada_reinhard.yaml --results D:\projeto_placentas_clayton\benchmark_results
+# Para interromper: criar o arquivo STOP na pasta de resultados.
+defaults:
+  family: ultralytics
+  fold: test-TOSTADA_val-ROSILHA-M
+  seed: 0
+  norm: reinhard
+  patience: 30
+
+runs:
+  - task: micro
+    model: yolo26s-seg.pt
+    epochs: 120
+    batch: 8
+    recipe: micro_bench
+    tags: [phase6, tostada, reinhard]
+  - task: capilar
+    model: yolo11s-seg.pt
+    epochs: 60
+    batch: 8
+    recipe: capilar_champion
+    tags: [phase6, tostada, reinhard]

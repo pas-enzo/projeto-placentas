@@ -1,0 +1,20 @@
+# Fase 5 (retomada de 2026-11-09). Roda com (da raiz do repositório):
+#   python -m benchmark.runner run benchmark/configs/phase5_queue.yaml --results D:\projeto_placentas_clayton\benchmark_results
+# Bloco 1: YOLO26s no capilar nos outros 5 folds, para comparar com o YOLO11s (único finalista do capilar com 6 folds).
+#          Mesma receita e mesmas épocas do fold principal (capilar_champion, 60 épocas, batch 8). ~2,4 h por execução.
+# Para interromper: criar o arquivo STOP na pasta de resultados (termina a execução atual e sai).
+defaults:
+  fold: primary
+  seed: 0
+  norm: none
+  patience: 30
+
+runs:
+  - family: ultralytics
+    task: capilar
+    model: yolo26s-seg.pt
+    fold: [test-TOSTADA_val-ROSILHA-M, test-ROSILHA-M_val-TORDILHA, test-TORDILHA_val-TP, test-TP_val-ZAINA-679, test-ZAINA-679_val-ZAZA]
+    epochs: 60
+    batch: 8
+    recipe: capilar_champion
+    tags: [phase5, folds]

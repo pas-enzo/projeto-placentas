@@ -1,0 +1,8 @@
+{
+  "n_images": 2,
+  "micro_model": "RF-DETR Seg Large",
+  "micro_count_sum": 51,
+  "micro_area_um2_sum": 82489.8769,
+  "capilar_count_sum": 305,
+  "capilar_area_um2_sum": 28457.4859
+}

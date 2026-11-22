@@ -1,0 +1,59 @@
+{
+  "date": "2026-10-17 16:46:43",
+  "mode": "both",
+  "n_images": 2,
+  "images": [
+    "ROSILHA-M-B_011_jpg.rf.4a966541cdff84d474cd4516dd35b742.jpg",
+    "ROSILHA-M-D_006_jpg.rf.4bf38cf5314617b13c7c11445fe40b04.jpg"
+  ],
+  "device": "cuda:0",
+  "gpu": "NVIDIA GeForce GTX 1650 SUPER",
+  "git": {
+    "commit": "6c137a3e8473bca0771c31f2062339821c86f45a",
+    "dirty": true
+  },
+  "micro": {
+    "backend": "yolo",
+    "checkpoint": "archive/experiments/v2_yolo_early/runs/segment/placentas_v11_aug_v2/weights/best.pt",
+    "conf": 0.46,
+    "input": "stretch to 640x640",
+    "resolution": 640
+  },
+  "capilar": {
+    "checkpoint": "v3_capilar_yolo11s/runs/capilar_yolo11s_tiled_v4/weights/best.pt",
+    "conf": 0.33,
+    "imgsz": 640,
+    "sahi": {
+      "slice": [
+        1380,
+        1032
+      ],
+      "overlap": 0.2,
+      "postprocess": "GREEDYNMM",
+      "match_metric": "IOS",
+      "match_threshold": 0.5
+    }
+  },
+  "calibration": {
+    "scale_bar_um": 50.0,
+    "scale_bar_px_native": 469.0,
+    "native_fov_px": [
+      4140,
+      3096
+    ],
+    "micro_area_um2_per_px2_stretch640": 0.35566052760489353,
+    "capilar_area_um2_per_px2_native": 0.011365651183618913,
+    "note": "Area per image = sum of instance areas; union columns discount overlaps."
+  },
+  "versions": {
+    "python": "3.10.19",
+    "torch": "2.5.1+cu121",
+    "ultralytics": "8.4.155",
+    "rfdetr": "1.6.2",
+    "sahi": "0.12.6",
+    "opencv-python": "4.10.0",
+    "numpy": "2.2.6",
+    "pandas": "2.3.3",
+    "gradio": "5.50.0"
+  }
+}

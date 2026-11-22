@@ -1,0 +1,2 @@
+image,path,width,height,micro_model,micro_count,micro_area_px,micro_area_um2,capilar_count,capilar_area_px,capilar_area_um2,overlay
+ROSILHA-M-B_011_jpg.rf.4a966541cdff84d474cd4516dd35b742.jpg,D:\projeto_placentas_clayton\datasat_v3.1_yolo11_og_size\valid\images\ROSILHA-M-B_011_jpg.rf.4a966541cdff84d474cd4516dd35b742.jpg,4140,3096,YOLO11s-seg,20,100410.0,36212.0068,107,1481158.0,17070.0845,D:\projeto_placentas_clayton\dev\projeto-placentas\outputs\_smoke_yolo\overlays\ROSILHA-M-B_011_jpg.rf.4a966541cdff84d474cd4516dd35b742_overlay.jpg

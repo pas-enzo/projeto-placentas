@@ -1,0 +1,6 @@
+[2026-10-17 16:44:09] [WARNING] rf-detr - Using a different number of positional encodings than DINOv2, which means we're not loading DINOv2 backbone weights. This is not a problem if finetuning a pretrained RF-DETR model.
+[2026-10-17 16:44:09] [WARNING] rf-detr - Using patch size 12 instead of 14, which means we're not loading DINOv2 backbone weights. This is not a problem if finetuning a pretrained RF-DETR model.
+[2026-10-17 16:44:10] [WARNING] rf-detr - Model is not optimized for inference. Latency may be higher than expected. You can optimize the model for inference by calling model.optimize_for_inference().
+`use_return_dict` is deprecated! Use `return_dict` instead!
+{'label': 'orig_path', 'pred_count': 859, 'P': 0.9092, 'R': 0.9167, 'F1': 0.9129, 'mean_IoU': 0.9117, 'area_rel_error_sum': 0.0223, 'S': 0.919}
+{'label': 'pil', 'pred_count': 859, 'P': 0.9092, 'R': 0.9167, 'F1': 0.9129, 'mean_IoU': 0.9117, 'area_rel_error_sum': 0.0223, 'S': 0.919}

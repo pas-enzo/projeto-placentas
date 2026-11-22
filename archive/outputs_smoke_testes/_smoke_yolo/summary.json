@@ -1,0 +1,8 @@
+{
+  "n_images": 1,
+  "micro_model": "YOLO11s-seg",
+  "micro_count_sum": 20,
+  "micro_area_um2_sum": 36212.0068,
+  "capilar_count_sum": 107,
+  "capilar_area_um2_sum": 17070.0845
+}

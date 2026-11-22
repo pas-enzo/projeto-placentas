@@ -1,0 +1,35 @@
+[1/2] ROSILHA-M-B_011_jpg.rf.4a966541cdff84d474cd4516dd35b742.jpg
+    Capilares: fatia 1/16    Capilares: fatia 2/16    Capilares: fatia 3/16    Capilares: fatia 4/16    Capilares: fatia 5/16    Capilares: fatia 6/16    Capilares: fatia 7/16    Capilares: fatia 8/16    Capilares: fatia 9/16    Capilares: fatia 10/16    Capilares: fatia 11/16    Capilares: fatia 12/16    Capilares: fatia 13/16    Capilares: fatia 14/16    Capilares: fatia 15/16    Capilares: fatia 16/16
+[2/2] ROSILHA-M-D_006_jpg.rf.4bf38cf5314617b13c7c11445fe40b04.jpg
+    Capilares: fatia 1/16    Capilares: fatia 2/16    Capilares: fatia 3/16    Capilares: fatia 4/16    Capilares: fatia 5/16    Capilares: fatia 6/16    Capilares: fatia 7/16    Capilares: fatia 8/16    Capilares: fatia 9/16    Capilares: fatia 10/16    Capilares: fatia 11/16    Capilares: fatia 12/16    Capilares: fatia 13/16    Capilares: fatia 14/16    Capilares: fatia 15/16    Capilares: fatia 16/16
+Wrote D:\projeto_placentas_clayton\dev\projeto-placentas\outputs\_check_interfaces\cli (2 images)
+ROSILHA-M-B_011_jpg.rf.4a96654
+  OK  batch micro count vs CLI: 20 vs 20
+  OK  batch micro area vs CLI: 35711.8736 vs 35711.8736
+  OK  batch capilar count vs CLI: 107 vs 107
+  OK  batch capilar area vs CLI: 16834.3252 vs 16834.3252
+  OK  instances.csv micro sum vs results: 35711.87 vs 35711.8736
+  OK  instances.csv capilar sum vs results: 16834.33 vs 16834.3252
+  OK  single (PIL->PNG) micro count vs CLI: 20 vs 20
+  OK  single (PIL->PNG) capilar count vs CLI: 107 vs 107
+  OK  single capilar area vs CLI (um2): 16834.33 vs 16834.33
+  OK  hover Microcotil tooltips count: 20 vs 20
+  OK  hover Microcotil sum vs total: 35711.9 vs 35711.9
+  OK  hover Capilar tooltips count: 107 vs 107
+  OK  hover Capilar sum vs total: 16834.3 vs 16834.3
+ROSILHA-M-D_006_jpg.rf.4bf38cf
+  OK  batch micro count vs CLI: 45 vs 45
+  OK  batch micro area vs CLI: 53163.0687 vs 53163.0687
+  OK  batch capilar count vs CLI: 198 vs 198
+  OK  batch capilar area vs CLI: 11230.1272 vs 11230.1272
+  OK  instances.csv micro sum vs results: 53163.07 vs 53163.0687
+  OK  instances.csv capilar sum vs results: 11230.13 vs 11230.1272
+  OK  single (PIL->PNG) micro count vs CLI: 45 vs 45
+  OK  single (PIL->PNG) capilar count vs CLI: 198 vs 198
+  OK  single capilar area vs CLI (um2): 11230.13 vs 11230.13
+  OK  hover Microcotil tooltips count: 45 vs 45
+  OK  hover Microcotil sum vs total: 53163.1 vs 53163.1
+  OK  hover Capilar tooltips count: 198 vs 198
+  OK  hover Capilar sum vs total: 11230.1 vs 11230.1
+
+ALL OK

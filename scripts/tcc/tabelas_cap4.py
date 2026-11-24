@@ -108,7 +108,8 @@ def tabela_egua(task, m, titulo, label):
         L.append(f"        {mm} & {c(conf)} & " + (f"{c(v['ap'], 3)} & " if task == "micro" else "") +
                  f"{c(v['p'], 3)} & {c(v['r'], 3)} & {c(v['f1'], 3)} & {c(v['d'], 3)} & {c(v['ea'], 1)}\\% & {c(v['ce'], 1)} \\\\")
     L.append("        \\hline")
-    ms = lambda k, n: f"${c(np.mean(vals[k]), n)} \\pm {c(np.std(vals[k], ddof=1), n)}$"   # noqa: E731
+    # dentro do modo matematico a virgula decimal precisa de chaves, senao o LaTeX poe um espaco depois dela ("0, 749")
+    ms = lambda k, n: f"${c(np.mean(vals[k]), n)} \\pm {c(np.std(vals[k], ddof=1), n)}$".replace(",", "{,}")   # noqa: E731
     L.append("        Média $\\pm$ dp & -- & " + (f"{ms('ap', 3)} & " if task == "micro" else "") +
              f"{ms('p', 3)} & {ms('r', 3)} & {ms('f1', 3)} & {ms('d', 3)} & {ms('ea', 1)} & {ms('ce', 1)} \\\\")
     L += ["        \\hline", "    \\end{tabular}",
@@ -206,9 +207,9 @@ def tabela_norm():
                 ap = [float(rows[n]["test_report_coco_ap_ap"].iloc[0]) for n in order]
                 L.append("         & AP & " + " & ".join(c(v, 3) for v in ap) + " \\\\")
     L += ["        \\hline", "    \\end{tabular}",
-          "    \\\\ {\\footnotesize \\textbf{Fonte:} Elaborada pelo autor (2026). Uma semente por configuração; a referência de cor foi estimada só com as éguas de treino. "
-          "$^{*}$Diferença de F1 em relação ao mesmo modelo sem normalização com $p$ ajustado de Holm menor que 0,05 (\\textit{bootstrap} pareado dos 30 campos, 2.000 reamostragens). "
-          "$^{\\dagger}$Sem teste pareado: não há estatísticas por campo para essas execuções, porque a estimativa da matriz de cores do método de Vahadane não é reprodutível. "
+          "    \\\\ {\\footnotesize \\textbf{Fonte:} Elaborada pelo autor (2026). "
+          "$^{*}$Diferença de F1 em relação ao mesmo modelo sem normalização com $p$ ajustado de Holm menor que 0,05 (\\textit{bootstrap} pareado dos 30 campos). "
+          "$^{\\dagger}$Sem teste pareado, porque a matriz de cores do Vahadane não é reprodutível e não há estatísticas por campo dessas execuções. "
           "O AP dos capilares, calculado por ladrilho, não é mostrado.}", "\\end{table}", ""]
     return L
 

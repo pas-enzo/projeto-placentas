@@ -550,10 +550,11 @@ def fig_exemplos():
         w, h = w or img.shape[1], h or img.shape[0]
         crop = img[y0:y0 + h, x0:x0 + w]
         out = cv2.resize(crop, (round(w * scale), round(h * scale)), interpolation=cv2.INTER_AREA)
+        # _paint subtrai a origem (ox, oy) no espaco de origem e so depois aplica a escala: a origem do recorte vai em pixels nativos
         if mi is not None:
-            Fx._paint(out, mi, (4140 / 640) * scale, (3096 / 640) * scale, x0 * scale, y0 * scale, _bgr(BLUE), .35)
+            Fx._paint(out, mi, (4140 / 640) * scale, (3096 / 640) * scale, x0 / (4140 / 640), y0 / (3096 / 640), _bgr(BLUE), .35)
         if ci is not None:
-            Fx._paint(out, ci, scale, scale, x0 * scale, y0 * scale, _bgr(YELLOW), .6)
+            Fx._paint(out, ci, scale, scale, x0, y0, _bgr(YELLOW), .6)
         return out
     titles = ["Campo original", "Anotação manual", "Modelo"]
     for i, (eg, r, img, gm, gc, pm, pc) in enumerate(rows):

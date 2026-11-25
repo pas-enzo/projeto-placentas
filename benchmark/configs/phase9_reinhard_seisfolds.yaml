@@ -1,0 +1,33 @@
+# Fase 9 (2026-11-24): modelos adotados TREINADOS COM Reinhard nos 5 folds que faltam (o fold principal ja foi feito na fase 2).
+# Motivo: o artigo usa o fluxo com Reinhard nas imagens novas (entrega, resumo), mas os seis folds eram do modelo sem normalizacao.
+# Com esta fase, os seis folds existem para os dois modelos (sem e com Reinhard) e a comparacao pareada passa a usar 180 campos.
+# Mesmos modelos, epocas, batch e receita dos modelos 'none' e dos campeoes normalizados da fase 2:
+#   micro:   yolo26s-seg, 120 epocas, batch 8, micro_bench       (referencia: micro__...yolo26s-seg__none__<fold>)
+#   capilar: yolo11s-seg,  60 epocas, batch 8, capilar_champion  (referencia: capilar__...yolo11s-seg__none__<fold>)
+# Pre-requisito: vistas normalizadas de cada fold (build_views.py --fold <fold> --norm reinhard --views micro,capilar), feitas por
+#   scripts/artigo_iser/fila_reinhard_folds.sh, que tambem roda esta fila.
+# Ordem: um fold por vez (micro e depois capilar), comecando pela TOSTADA (a egua em que o capilar falha).
+#   python -m benchmark.runner run benchmark/configs/phase9_reinhard_seisfolds.yaml --results D:\projeto_placentas_clayton\benchmark_results
+# Para interromper: criar o arquivo STOP em D:\projeto_placentas_clayton\benchmark_results (termina a execucao atual e sai; rodar de novo retoma).
+defaults:
+  family: ultralytics
+  seed: 0
+  norm: reinhard
+  patience: 30
+
+runs:
+  # 1. fold com a TOSTADA como teste
+  - {task: micro,   model: yolo26s-seg.pt, fold: test-TOSTADA_val-ROSILHA-M,  epochs: 120, batch: 8, recipe: micro_bench,       tags: [phase9, reinhard, folds]}
+  - {task: capilar, model: yolo11s-seg.pt, fold: test-TOSTADA_val-ROSILHA-M,  epochs: 60,  batch: 8, recipe: capilar_champion, tags: [phase9, reinhard, folds]}
+  # 2. ROSILHA-M
+  - {task: micro,   model: yolo26s-seg.pt, fold: test-ROSILHA-M_val-TORDILHA, epochs: 120, batch: 8, recipe: micro_bench,       tags: [phase9, reinhard, folds]}
+  - {task: capilar, model: yolo11s-seg.pt, fold: test-ROSILHA-M_val-TORDILHA, epochs: 60,  batch: 8, recipe: capilar_champion, tags: [phase9, reinhard, folds]}
+  # 3. TORDILHA
+  - {task: micro,   model: yolo26s-seg.pt, fold: test-TORDILHA_val-TP,        epochs: 120, batch: 8, recipe: micro_bench,       tags: [phase9, reinhard, folds]}
+  - {task: capilar, model: yolo11s-seg.pt, fold: test-TORDILHA_val-TP,        epochs: 60,  batch: 8, recipe: capilar_champion, tags: [phase9, reinhard, folds]}
+  # 4. TP
+  - {task: micro,   model: yolo26s-seg.pt, fold: test-TP_val-ZAINA-679,       epochs: 120, batch: 8, recipe: micro_bench,       tags: [phase9, reinhard, folds]}
+  - {task: capilar, model: yolo11s-seg.pt, fold: test-TP_val-ZAINA-679,       epochs: 60,  batch: 8, recipe: capilar_champion, tags: [phase9, reinhard, folds]}
+  # 5. ZAINA-679
+  - {task: micro,   model: yolo26s-seg.pt, fold: test-ZAINA-679_val-ZAZA,     epochs: 120, batch: 8, recipe: micro_bench,       tags: [phase9, reinhard, folds]}
+  - {task: capilar, model: yolo11s-seg.pt, fold: test-ZAINA-679_val-ZAZA,     epochs: 60,  batch: 8, recipe: capilar_champion, tags: [phase9, reinhard, folds]}

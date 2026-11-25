@@ -245,7 +245,8 @@ def main() -> None:
     ap.add_argument("--views", default="native,micro,capilar", help="subset of native,micro,capilar")
     ap.add_argument("--force", action="store_true", help="recria uma pasta de fold já existente")
     ap.add_argument("--norm", default="", help="métodos de normalização (vírgula); ver benchmark/views/stain.py")
-    ap.add_argument("--keep-native-norm", action="store_true", help="mantém native_<método> (ocupa ~GBs)")
+    ap.add_argument("--keep-native-norm", action="store_true", help="(padrão desde 2026-11-24) mantém native_<método>; aceito por compatibilidade")
+    ap.add_argument("--drop-native-norm", action="store_true", help="apaga native_<método> depois de gerar as vistas (poupa ~GBs)")
     ap.add_argument("--coco", action="store_true", help="também exporta COCO das vistas geradas")
     ap.add_argument("--resume", action="store_true",
                     help="com --norm: continua uma normalização interrompida, restaurando a referência salva")
@@ -261,7 +262,7 @@ def main() -> None:
     methods = [m.strip() for m in args.norm.split(",") if m.strip()]
     if methods:
         for n in names:
-            build_norm(manifest, n, args.out, methods, views, args.keep_native_norm, args.coco, args.force, args.resume)
+            build_norm(manifest, n, args.out, methods, views, not args.drop_native_norm, args.coco, args.force, args.resume)
         return
     for n in names:
         build_fold(manifest, n, args.src, args.out, views, args.force)

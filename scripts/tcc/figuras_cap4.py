@@ -479,9 +479,8 @@ def fig_tempos():
 
 # ------------------------------------------------------------------ eficiencia: manual x pipeline
 def fig_eficiencia():
-    man_total = 43.6 * 60
-    frac_cap = .852
-    man = {"Campo completo": man_total, "Capilares": man_total * frac_cap, "Microcotilédones": man_total * (1 - frac_cap)}
+    # tempos manuais medios por campo (s), nos 180 campos (Planilha completa.xlsx, 2026-11-24): micro 313,8; capilar 2103,4; total 2417,2
+    man = {"Campo completo": 2417.2, "Capilares": 2103.4, "Microcotilédones": 313.8}
     j = json.load(open(R / "inference_timing.json"))["rows"]
     tm = next(r for r in j if r["task"] == "micro" and r["model"] == "yolo26s-seg.pt")["fp32"]["mean_s"]
     tc = next(r for r in j if r["task"] == "capilar" and r["model"] == "yolo11s-seg.pt")["fp32"]["mean_s"]
